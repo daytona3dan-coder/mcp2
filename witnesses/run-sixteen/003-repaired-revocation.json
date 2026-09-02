@@ -1,0 +1,20 @@
+{
+  "protocol": "mcp2-authority-witness/1",
+  "witness_index": 3,
+  "previous_witness_commit": "2def55401d78b4789434fc2a9ed35ccb473ef713",
+  "authority_material": {
+    "tenant_id": "witness-r16",
+    "sequence": 3,
+    "authority_revision": 3,
+    "ledger_head": "fed96ffbfc3b33411e21e4892a4ca144eadf90ceb654f70d03524f1792f859ca",
+    "snapshot_digest": "39d8361eac3d7d93ecc6c2af45013520e9e42b4411a2d85b6adaced6fd96a8b5",
+    "event_count": 3,
+    "receipt_count": 0,
+    "active_grants": 0,
+    "revoked_grants": 1,
+    "terminal_event_hash": "fed96ffbfc3b33411e21e4892a4ca144eadf90ceb654f70d03524f1792f859ca",
+    "head_matches_terminal": true,
+    "chain_link_errors": 0
+  },
+  "meaning": "Independent witness of the legitimate post-rollback repair revocation."
+}
