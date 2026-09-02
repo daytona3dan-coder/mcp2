@@ -4,13 +4,13 @@
   "tenant_id": "witness-r17",
   "sequence": 2,
   "authority_revision": 2,
-  "ledger_head": "b510e9d38adf30a7ff648f489294abaaaa0405be05dee8e3b53ad6f9e818f0a2",
-  "snapshot_digest": "a172577c8dc566cd18cd5c53c41fe2e9adf06c56c875d10f05e60a70ce4e7472",
+  "ledger_head": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "snapshot_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
   "event_count": 2,
   "receipt_count": 0,
   "active_grants": 1,
   "revoked_grants": 0,
-  "terminal_event_hash": "b510e9d38adf30a7ff648f489294abaaaa0405be05dee8e3b53ad6f9e818f0a2",
+  "terminal_event_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   "head_matches_terminal": true,
   "chain_link_errors": 0
 }
