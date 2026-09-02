@@ -1,0 +1,30 @@
+{
+  "grants": [
+    {
+      "grant_id": "AG-001",
+      "principal": "human:dan",
+      "actor": "agent:alpha",
+      "intent_ref": "spec:task-17",
+      "actions": ["vault.read"],
+      "targets": ["chatvault:record-001"],
+      "policy_ref": "policy:mcp2-demo",
+      "policy_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "valid_from": "2026-09-02T13:00:00Z",
+      "valid_until": "2026-09-02T14:00:00Z",
+      "status": "active",
+      "delegation": {"allowed": true},
+      "parent_grant_id": null
+    }
+  ],
+  "request": {
+    "request_id": "REQ-001",
+    "grant_id": "AG-001",
+    "actor": "agent:alpha",
+    "action": "vault.read",
+    "target": "chatvault:record-001",
+    "policy_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "nonce": "nonce-001",
+    "requested_at": "2026-09-02T13:30:00Z"
+  },
+  "expected": {"decision": "ALLOW", "reasons": []}
+}

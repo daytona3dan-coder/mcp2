@@ -1,0 +1,13 @@
+{
+  "name": "@mcp2/reference-verifier",
+  "version": "0.6.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test",
+    "vectors": "node src/run-vectors.js"
+  }
+}
