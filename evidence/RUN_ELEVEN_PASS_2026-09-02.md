@@ -11,7 +11,7 @@ Run Eleven demonstrated the constitutional rule:
 
 > **Identity is not authority.**
 
-Cryptographic authentication establishes who a human or workload is. It does not itself permit machine execution. MCP2/MCPaios independently evaluates the authority grant, action, target, validity, delegation chain and revocation state.
+Cryptographic authentication establishes who a human or workload is. It does not itself permit machine execution. MCP2/MCPaios independently evaluates authority: the exact grant, actor, action, target, validity, delegation ancestry, and revocation state.
 
 ## Private MCPaios proof
 
@@ -49,25 +49,31 @@ The private proof established:
 13. wrong authenticated workload cannot delegate another workload's grant;
 14. child execution remains bounded to child scope;
 15. parent revocation transitively invalidates child authority;
-16. reconstruction links identity evidence, delegation, revocation and decisions without storing raw identity credentials.
+16. reconstruction links identity evidence, delegation, revocation, and decisions without storing raw identity credentials.
 
-## Live GitHub OIDC proof
+## Final live GitHub OIDC proof
 
 Disposable proof repository: `daytona3dan-coder/mcp2-github-proof` (private)
 
-External proof PR: #7
+Final accepted external proof PR:
 
-Proof preservation merge:
+`#10 — MCP2 Run Eleven — accepted deterministic GitHub OIDC gate`
 
-`dc98affa81692627887453ba618de6ed2dfd174a`
+Final accepted proof head:
+
+`f41712346660551e52d284f6ac263534c53c7ea8`
+
+Base `main` deterministic OIDC harness/workflow was installed before the accepted PR at:
+
+`47082ab76157d460121ec41738a0ccfd82153c29`
 
 Accepted OIDC workflow run:
 
-`33676840074`
+`33677741356`
 
-Accepted proof head:
+Final proof preservation merge:
 
-`ac345d8d1e5b6b1cc26b6027c21c1f63c9d27060`
+`766cd6ee45237949397e984f9e8252efda161874`
 
 Final result: **RUN ELEVEN OIDC PASS 10/10**.
 
@@ -77,44 +83,46 @@ The verified GitHub workload subject was:
 
 `repo:daytona3dan-coder@244063891/mcp2-github-proof@1355104393:pull_request`
 
-The subject includes immutable GitHub owner ID `244063891` and repository ID `1355104393`.
+The subject binds immutable GitHub owner ID `244063891` and repository ID `1355104393`.
 
 A separately Ed25519-signed MCP2 proof grant bound its actor to that exact GitHub OIDC subject. The proof-only MCP2 private signing key was never committed.
 
-## External proof transcript
+## Final external proof transcript
 
 1. Live GitHub OIDC JWT signature verified against GitHub JWKS — PASS.
-2. OIDC claims bound the immutable repository identity and exact pull-request workload subject — PASS.
-3. Authenticated workload identity without an MCP2 grant — DENY.
+2. OIDC claims bound immutable repository identity and the exact pull-request workload subject — PASS.
+3. Authenticated workload identity without MCP2 authority — DENY before mutation.
 4. Separately signed MCP2 grant verified and bound the exact OIDC subject — PASS.
 5. Exact OIDC identity + exact grant — ALLOW; real GitHub repository read succeeded.
-6. `github.contents.write` — DENY even though the workflow token possessed `contents: write` capability.
-7. Different workload subject could not inherit the grant — DENY.
+6. `github.contents.write` — DENY even though the workflow token possessed `contents: write` capability; zero mutation calls.
+7. Different authenticated workload subject could not inherit the grant — DENY.
 8. Valid GitHub OIDC token with the wrong audience — DENY.
-9. Tampered GitHub OIDC token failed cryptographic signature verification — DENY.
+9. Deterministically tampered GitHub OIDC payload failed cryptographic signature verification — DENY.
 10. Evidence reconstructed identity → authority → decision without storing the raw JWT — PASS.
 
 Every denied mutation path recorded zero GitHub mutation calls.
 
-## Evidence artifact
+## Final evidence artifact
 
 Artifact: `mcp2-run-eleven-oidc-evidence`
 
-Artifact ID: `9864666766`
+Artifact ID: `9864998969`
 
 Artifact ZIP SHA-256 reported by GitHub Actions:
 
-`ef9916814fe9bda9f66a51e62ffb58148ec3a9e7d8a8c999e2430272e5116048`
+`569763b2c27a665b4e265a1a035d07cea3c4dfdbf6cad9f28d2d10a1fb354460`
 
-The artifact stores selected OIDC claims and a SHA-256 fingerprint of the JWT. The raw JWT is not preserved in the evidence artifact.
+The evidence stores selected OIDC claims and a SHA-256 fingerprint of the JWT. The raw JWT is not preserved.
 
-## Failed external attempts and correction
+## Superseded external attempts and correction history
 
-The first OIDC proof assumed GitHub's default pull-request subject form. GitHub returned a different repository-customized subject, so the workflow correctly failed with `OIDC_SUBJECT_MISMATCH` rather than accepting a looser identity binding.
+Earlier OIDC proof attempts were deliberately retained as engineering evidence but are **not** the final Run Eleven acceptance record.
 
-A diagnostic run printed only safe OIDC claims and revealed the actual subject containing immutable owner and repository IDs. The proof grant was re-issued against that exact subject, the diagnostic helper was removed, and a fresh final head was executed.
+An earlier identity-binding attempt failed closed when the assumed GitHub OIDC subject did not match the repository-customized subject actually issued by GitHub. The grant was then bound to the exact observed subject containing immutable owner and repository IDs.
 
-The final accepted head `ac345d8d1e5b6b1cc26b6027c21c1f63c9d27060` passed all 10 external cases. The failed diagnostic attempts are not accepted as Run Eleven evidence.
+A later 10/10 supporting run used a tamper test that changed the final base64url signature character. Because unused base64url bits can make such a textual change decode to identical signature bytes, that test could be nondeterministic. The proof was therefore strengthened rather than accepted on that basis: the final harness mutates the JWT payload bytes while retaining the original signature, guaranteeing cryptographic verification failure.
+
+PRs #8 and #9 were closed unmerged during this correction sequence. Final acceptance uses PR #10, opened only after the deterministic harness was installed on base `main`, and workflow run `33677741356` explicitly executed `proof/run-eleven-oidc-final.mjs` and passed all ten cases.
 
 ## Capability versus identity versus authority
 
@@ -135,7 +143,7 @@ This demonstrates three distinct layers:
 
 ## Bounded delegation
 
-The private MCPaios proof also demonstrated authenticated workload-to-workload delegation. Child grants could not exceed parent actions, targets or validity. A child could not be delegated by the wrong workload identity. Revoking the parent caused descendant execution to fail with an invalid-ancestor decision.
+The private MCPaios proof also demonstrated authenticated workload-to-workload delegation. Child grants could not exceed parent actions, targets, or validity. A child could not be delegated by the wrong workload identity. Revoking the parent caused descendant execution to fail through invalid ancestry.
 
 ## Security significance
 
@@ -143,7 +151,7 @@ Run Eleven extends the established chain to:
 
 `Authenticated Identity → MCP2 Authority → Execution`
 
-It proves that identity providers can authenticate principals/workloads without becoming the authority system themselves.
+It proves that an identity provider can authenticate a principal/workload without becoming the authority system itself.
 
 ## Non-claims
 
