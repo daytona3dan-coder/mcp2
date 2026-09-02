@@ -56,3 +56,11 @@ npm run vectors
 ```
 
 No external dependencies are required.
+
+## License and implementation
+
+The contents of this MCP2 repository are licensed under the **Apache License 2.0**. Anyone may inspect, implement, modify, test, and redistribute MCP2 subject to that license.
+
+This license applies to the contents of this repository only. It does **not** grant rights to separately distributed MCPaios products, hosted services, trademarks, or code in other repositories.
+
+See `LICENSE` for the full terms.
