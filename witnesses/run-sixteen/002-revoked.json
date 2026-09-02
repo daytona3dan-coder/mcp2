@@ -1,0 +1,20 @@
+{
+  "protocol": "mcp2-authority-witness/1",
+  "witness_index": 2,
+  "previous_witness_commit": "60f11130b754b7e709c6327612c8a535fda5e25f",
+  "authority_material": {
+    "tenant_id": "witness-r16",
+    "sequence": 3,
+    "authority_revision": 3,
+    "ledger_head": "72ed50eab4efbf523504138c676709ea72747af9a20ab92c94e4b12c962a3f68",
+    "snapshot_digest": "67f987a4819b33a0323568defbec3299c89d46b26e81734517fab7b82eeb8d97",
+    "event_count": 3,
+    "receipt_count": 0,
+    "active_grants": 0,
+    "revoked_grants": 1,
+    "terminal_event_hash": "72ed50eab4efbf523504138c676709ea72747af9a20ab92c94e4b12c962a3f68",
+    "head_matches_terminal": true,
+    "chain_link_errors": 0
+  },
+  "meaning": "Independent later witness proving the grant was revoked."
+}
