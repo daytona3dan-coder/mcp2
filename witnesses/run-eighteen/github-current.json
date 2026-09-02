@@ -1,0 +1,16 @@
+{
+  "provider": "github",
+  "protocol": "mcp2-authority-witness/1",
+  "tenant_id": "witness-r18",
+  "sequence": 2,
+  "authority_revision": 2,
+  "ledger_head": "538c31cef4cda5397f51eb38272ed5a9f2d7b4fa2e5b9545f7f7b5428a4acf7a",
+  "snapshot_digest": "1735c47fa54ba909f6bb7b6dde6e136360f3120478f244c58b57359e2b6cef33",
+  "event_count": 2,
+  "receipt_count": 0,
+  "active_grants": 1,
+  "revoked_grants": 0,
+  "terminal_event_hash": "538c31cef4cda5397f51eb38272ed5a9f2d7b4fa2e5b9545f7f7b5428a4acf7a",
+  "head_matches_terminal": true,
+  "chain_link_errors": 0
+}
