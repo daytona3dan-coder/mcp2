@@ -1,0 +1,20 @@
+{
+  "protocol": "mcp2-authority-witness/1",
+  "witness_index": 1,
+  "previous_witness_commit": null,
+  "authority_material": {
+    "tenant_id": "witness-r16",
+    "sequence": 2,
+    "authority_revision": 2,
+    "ledger_head": "0f89f5ded4a0f16b9a7b9f46d73db7e7c379c56c7954bf27fa72e04a0ab3b8e3",
+    "snapshot_digest": "41c737d47f5c33d87cce140e8f299cb4924235078697b4794d581eafeaf8ac77",
+    "event_count": 2,
+    "receipt_count": 0,
+    "active_grants": 1,
+    "revoked_grants": 0,
+    "terminal_event_hash": "0f89f5ded4a0f16b9a7b9f46d73db7e7c379c56c7954bf27fa72e04a0ab3b8e3",
+    "head_matches_terminal": true,
+    "chain_link_errors": 0
+  },
+  "meaning": "Independent witness of active authority before revocation."
+}
