@@ -48,6 +48,8 @@ Canonical Stripe proof objects:
 - compromise record: `prod_VBmwmn9GdCOVHV`
 - POST forged evidence: `prod_VBmyfaMTqgZ5Rm`
 
+A redundant accidental POST Product, `prod_VBnKsIYYo9f5ZY`, was also created during the proof. It was left inactive, was excluded from all canonical evidence/classifier inputs, and is not part of the accepted proof record. Its continued existence does not add a fourth provider or alter the 2-of-3 theorem.
+
 ## Legitimate PRE evidence
 
 Proof tenant: `witness-r23`
