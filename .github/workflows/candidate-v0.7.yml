@@ -1,0 +1,28 @@
+name: MCP2 Candidate v0.7 protocol freeze
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches:
+      - candidate-v0.7/protocol-freeze
+
+permissions:
+  contents: read
+
+jobs:
+  candidate-v0-7:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Validate protocol freeze
+        run: node --test candidate/protocol-freeze.test.mjs
+      - name: Re-run clean-room conformance tests
+        run: node --test reference/clean-room/test.mjs
+      - name: Reconstruct frozen conformance vectors
+        run: node reference/clean-room/run-vectors.mjs
+      - name: Re-bind closed proof evidence
+        run: node reference/clean-room/evidence-bindings.mjs
