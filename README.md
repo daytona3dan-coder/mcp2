@@ -1,6 +1,6 @@
 # MCP2 — Machine Authority Protocol
 
-**Status:** Candidate v0.6.0  
+**Status:** Candidate v0.7.0  
 **Purpose:** Define and verify bounded, revocable, receipted machine authority.
 
 MCP2 answers one question:
@@ -15,13 +15,20 @@ MCP2 is **not** MCP v2, an MCP replacement, an identity provider, or an agent or
 - Capability answers **what the actor can technically call**.
 - Intent answers **what is proposed or expected**.
 - MCP2 answers **whether the actor is authorized to perform this exact act now**.
-- MCPaios is an operational implementation of MCP2.
+- MCPaios is a separate operational implementation of MCP2 and is not the MCP2 truth authority.
 
 ## Core lifecycle
 
 `RATIFY → GRANT → VERIFY → FENCE → EXECUTE → RECEIPT → RECONSTRUCT`
 
 `REVOKE` may invalidate authority before execution.
+
+## Candidate profiles
+
+- `MCP2-CORE` — canonical grant resolution, verification, delegation, revocation, replay protection, execution fencing, receipts, and reconstruction.
+- Optional evidence profiles are defined in `PROFILES.md` and cover witness quorum, freshness, root epochs, external time, threshold timestamp authorities, and provider epochs.
+
+An optional profile must not weaken an `MCP2-CORE` denial.
 
 ## Candidate invariants
 
@@ -38,24 +45,21 @@ MCP2 is **not** MCP v2, an MCP replacement, an identity provider, or an agent or
 
 - `CHARTER.md` — category and non-goals
 - `THREAT_MODEL.md` — trust boundaries and attacker model
-- `SPECIFICATION.md` — candidate normative semantics
+- `SPECIFICATION.md` — Candidate v0.7.0 normative semantics
+- `PROFILES.md` — conformance profiles
+- `CONFORMANCE.md` — conformance requirements
+- `protocol-manifest.json` — machine-readable candidate version and conformance binding
 - `schemas/` — JSON Schemas for canonical records
 - `algorithms/` — deterministic verification procedures
-- `reference/` — executable reference verifier
+- `reference/` — executable reference and clean-room verifiers
 - `test-vectors/` — normative examples
-- `runs/run-five/` — protected-resource proof plan
+- `runs/` and `evidence/` — preserved proof corpus and public PASS evidence
 
-## Run reference verifier
+## Reference verification
 
 Requires Node.js 20+.
 
-```bash
-cd reference
-npm test
-npm run vectors
-```
-
-No external dependencies are required.
+The Candidate v0.7.0 protocol freeze and clean-room conformance suite are executable from this repository. The machine-readable manifest binds the current candidate to the closed Runs Five through Twenty-Five proof corpus and the independent conformance vector digest.
 
 ## License and implementation
 
