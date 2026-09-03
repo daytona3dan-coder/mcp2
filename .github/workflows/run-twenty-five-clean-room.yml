@@ -1,0 +1,28 @@
+name: MCP2 Run Twenty-Five clean-room conformance
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches:
+      - run-twenty-five/clean-room-conformance
+
+permissions:
+  contents: read
+
+jobs:
+  clean-room-conformance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Enforce clean-room independence boundary
+        run: node reference/clean-room/guard.mjs
+      - name: Run clean-room conformance tests
+        run: node --test reference/clean-room/test.mjs
+      - name: Reconstruct all frozen vectors
+        run: node reference/clean-room/run-vectors.mjs
+      - name: Bind vectors to closed public proof evidence
+        run: node reference/clean-room/evidence-bindings.mjs
