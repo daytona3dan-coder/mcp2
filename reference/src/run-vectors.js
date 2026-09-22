@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MemoryAuthorityStore, verify } from './verifier.js';
+import { parseJsonRejectDuplicateKeys } from './parse-json.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const vectorsRoot = path.resolve(here, '../../test-vectors');
@@ -16,7 +17,7 @@ function walk(dir) {
 
 let failed = 0;
 for (const file of walk(vectorsRoot).filter(f => f.endsWith('.json'))) {
-  const v = JSON.parse(fs.readFileSync(file,'utf8'));
+  const v = parseJsonRejectDuplicateKeys(fs.readFileSync(file,'utf8'));
   const s = new MemoryAuthorityStore(v.grants ?? [], v.preconsumed_nonces ?? []);
   const d = verify(v.request, s, fixedNow, {
     declaredExtensions: v.declared_extensions ?? [],
