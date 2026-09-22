@@ -60,13 +60,21 @@ function authorityDeny(request, grant, reasons) {
 }
 
 export function evaluateAuthority(input = {}) {
-  const { now, request, grants = [], used_nonces = [], declared_extensions = [] } = input;
+  const {
+    now,
+    request,
+    grants = [],
+    used_nonces = [],
+    declared_extensions = [],
+    protocol_version = '0.7.0-candidate',
+  } = input;
+  const v08 = protocol_version === '0.8.0-draft';
   const nowMs = parseTime(now);
   if (nowMs === null) return authorityDeny(request, null, ['MALFORMED_VERIFICATION_TIME']);
   const required = ['request_id','grant_id','actor','action','target','policy_digest','nonce','requested_at'];
   if (!request
       || required.some(k => typeof request[k] !== 'string' || request[k].length === 0)
-      || !validExtensions(request, declared_extensions)) {
+      || (v08 && !validExtensions(request, declared_extensions))) {
     return authorityDeny(request, null, ['MALFORMED_REQUEST']);
   }
   const byId = new Map(grants.map(g => [g.grant_id, g]));
@@ -100,9 +108,9 @@ export function evaluateAuthority(input = {}) {
     const cFrom = parseTime(child.valid_from);
     const cUntil = parseTime(child.valid_until);
     if (parent.status !== 'active' || pFrom === null || pUntil === null || nowMs < pFrom || nowMs >= pUntil) reasons.push('ANCESTOR_INVALID');
-    if (parent.delegation?.allowed !== true) reasons.push('ANCESTOR_INVALID');
-    if (child.principal !== parent.principal) reasons.push('ANCESTOR_INVALID');
-    if (child.policy_digest !== parent.policy_digest) reasons.push('ANCESTOR_INVALID');
+    if (v08 && parent.delegation?.allowed !== true) reasons.push('ANCESTOR_INVALID');
+    if (v08 && child.principal !== parent.principal) reasons.push('ANCESTOR_INVALID');
+    if (v08 && child.policy_digest !== parent.policy_digest) reasons.push('ANCESTOR_INVALID');
     if (!subset(child.actions, parent.actions) || !subset(child.targets, parent.targets)) reasons.push('ANCESTOR_INVALID');
     if (cFrom === null || cUntil === null || pFrom === null || pUntil === null || cFrom < pFrom || cUntil > pUntil) reasons.push('ANCESTOR_INVALID');
     child = parent;
