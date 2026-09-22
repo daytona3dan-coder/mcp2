@@ -1,8 +1,12 @@
 {
   "protocol": "MCP2",
   "name": "Machine Authority Protocol",
-  "version": "0.7.0-candidate",
-  "status": "candidate",
+  "version": "0.8.0-draft",
+  "status": "draft",
+  "predecessor_candidate": {
+    "version": "0.7.0-candidate",
+    "commit": "a85e3b81ed2bb7eb497592ec49b5f63aab2be94e"
+  },
   "core_profile": "MCP2-CORE",
   "optional_profiles": [
     "MCP2-WITNESS",
@@ -13,6 +17,11 @@
     "MCP2-TIME-THRESHOLD",
     "MCP2-PROVIDER-EPOCH"
   ],
+  "request_extensions": {
+    "container": "extensions",
+    "declaration_required": true,
+    "top_level_core_closed": true
+  },
   "normative_documents": [
     "SPECIFICATION.md",
     "PROFILES.md",
@@ -23,16 +32,26 @@
     "schemas/revocation.schema.json",
     "schemas/execution-receipt.schema.json"
   ],
-  "proof_corpus": {
+  "predecessor_proof_corpus": {
     "first_closed_run": 5,
     "last_closed_run": 25,
     "status": "CLOSED_PASS"
   },
-  "clean_room_conformance": {
+  "predecessor_clean_room_conformance": {
     "protocol": "mcp2-clean-room-conformance/1",
     "vectors": 31,
     "manifest_digest_sha256": "12e890408778f425a26d696d5706ad453615e629ecf671a61acba0a84d58b8ef",
     "run": 25
+  },
+  "draft_v0_8": {
+    "vector_status": "IN_DEVELOPMENT",
+    "new_rules": [
+      "delegation_permission",
+      "delegated_principal_equality",
+      "delegated_policy_digest_equality",
+      "superseded_non_executable",
+      "declared_request_extensions"
+    ]
   },
   "implementation_independence_rule": "MCPaios is an implementation of MCP2 and is not the MCP2 truth authority."
 }
