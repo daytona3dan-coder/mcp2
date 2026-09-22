@@ -50,8 +50,22 @@
       "delegated_principal_equality",
       "delegated_policy_digest_equality",
       "superseded_non_executable",
-      "declared_request_extensions"
+      "declared_request_extensions",
+      "verifier_selected_protocol_version",
+      "verifier_time_validity",
+      "canonical_jcs_request_fingerprint",
+      "duplicate_json_member_rejection",
+      "multi_hop_delegation"
     ]
   },
-  "implementation_independence_rule": "MCPaios is an implementation of MCP2 and is not the MCP2 truth authority."
+  "implementation_independence_rule": "MCPaios is an implementation of MCP2 and is not the MCP2 truth authority.",
+  "canonical_request_fingerprint": {
+    "canonicalization": "RFC8785-JCS",
+    "encoding": "UTF-8",
+    "digest": "SHA-256",
+    "duplicate_object_members": "reject-at-parser-ingress"
+  },
+  "historical_notes": [
+    "candidate/V0_7_KNOWN_LIMITATIONS.md"
+  ]
 }
