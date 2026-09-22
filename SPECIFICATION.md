@@ -1,6 +1,6 @@
 # MCP2 — Machine Authority Protocol
 
-**Candidate v0.7.0**
+**Draft v0.8.0**
 
 MCP2 defines a protocol for deciding and proving whether a machine possesses valid, bounded, unrevoked authority to perform an exact action against an exact target at an exact time.
 
@@ -28,7 +28,8 @@ Every implementation claiming MCP2 conformance MUST declare:
 
 1. the MCP2 protocol version;
 2. the implemented profile(s);
-3. any implementation-defined replay domain or extension fields.
+3. the implementation-defined replay domain;
+4. every implementation-defined request extension identifier and version it accepts.
 
 `MCP2-CORE` is the base profile. Optional evidence profiles are defined in `PROFILES.md`.
 
@@ -62,6 +63,8 @@ A canonical Authority Grant Record MUST bind at least:
 
 A grant MUST have a bounded validity interval. An implementation MUST NOT interpret an absent or invalid end time as perpetual authority.
 
+Only an `active` grant is currently executable. A grant with status `revoked` or `superseded` MUST DENY future verification. Revocation or supersession MUST NOT erase historical authority or receipts needed for reconstruction.
+
 ## 5. Verification Request
 
 A verification request MUST bind at least:
@@ -77,6 +80,8 @@ A verification request MUST bind at least:
 
 The request describes the attempted execution. It does not create authority.
 
+A request MAY include an `extensions` object. Each extension member MUST use an implementation-declared extension identifier. Extension material is evidence/context bound to the request; it MUST NOT override or reinterpret Core actor, action, target, grant, policy, validity, ancestry, or replay semantics.
+
 ## 6. Verification algorithm
 
 A conforming `MCP2-CORE` verifier MUST, at the last responsible moment before protected execution:
@@ -91,12 +96,19 @@ A conforming `MCP2-CORE` verifier MUST, at the last responsible moment before pr
 8. require the target to be authorized;
 9. exact-match the governing policy digest;
 10. walk every ancestor grant;
-11. deny if any ancestor is unknown, revoked, expired, not-yet-valid, or otherwise invalid;
-12. require every delegated child to be a subset of its parent authority and time bounds;
-13. deny a nonce already consumed inside the declared replay domain;
-14. atomically consume the nonce with a successful decision in production implementations;
-15. return `ALLOW` only if every applicable check succeeds;
-16. otherwise return `DENY`.
+11. deny if any ancestor is unknown, not active, expired, not-yet-valid, or otherwise invalid;
+12. for every immediate child/parent pair in the chain, require:
+    - the parent explicitly permits delegation;
+    - child principal equals parent principal;
+    - child actions are a subset of parent actions;
+    - child targets are a subset of parent targets;
+    - child validity is fully contained by parent validity;
+    - child policy digest equals parent policy digest;
+13. validate any request extension material against the implementation's declared extension contracts; malformed or undeclared extension material MUST NOT produce ALLOW;
+14. deny a nonce already consumed inside the declared replay domain;
+15. atomically consume the nonce with a successful decision in production implementations;
+16. return `ALLOW` only if every applicable check succeeds;
+17. otherwise return `DENY`.
 
 A verifier MUST fail closed when required authority material cannot be validated.
 
@@ -120,15 +132,20 @@ Profiles MAY define additional reason codes. Additional reason codes MUST NOT co
 
 ## 8. Delegation
 
-A delegated child grant MUST NOT:
+A delegated child grant is valid only when its immediate parent exists, is active/current, and explicitly permits delegation.
 
-- authorize an action absent from its immediate parent;
-- authorize a target absent from its immediate parent;
-- begin before its parent;
-- end after its parent;
-- survive invalidation of any ancestor.
+A delegated child grant MUST:
 
-Delegation MUST be transitively bounded. A descendant can never possess more authority than the authority chain above it.
+- preserve the same `principal` as its immediate parent;
+- preserve the same `policy_digest` as its immediate parent unless a separately declared future constrained-policy-inheritance profile defines otherwise;
+- authorize only actions present in its immediate parent;
+- authorize only targets present in its immediate parent;
+- begin no earlier than its immediate parent;
+- end no later than its immediate parent.
+
+A child MUST NOT survive invalidation of any ancestor. These rules apply transitively to every descendant.
+
+`policy_ref` remains a reference label; `policy_digest` is the normative policy binding used by Core verification.
 
 ## 9. Revocation
 
@@ -246,15 +263,27 @@ Unavailable evidence is not equivalent to affirmative authorization.
 
 ## 20. Extension rule
 
-Implementations MAY add fields, transports, storage systems, identity systems, policy languages, or evidence providers.
+Implementations MAY add transports, storage systems, identity systems, policy languages, evidence providers, and declared request extensions.
+
+Request extensions MUST be carried under the request's `extensions` object. The Core request fields remain closed and normative.
+
+A conforming implementation that accepts request extensions MUST:
+
+- publish the accepted extension identifiers and versions in its protocol/conformance declaration;
+- validate extension shape before protected execution;
+- bind accepted extension material into the same request fingerprint/evidence used for the authority decision;
+- fail deterministically when required extension material is malformed or an extension identifier is undeclared.
 
 Extensions MUST NOT:
 
 - weaken Core checks;
 - silently reinterpret normative fields;
+- override actor, action, target, grant, policy, validity, ancestry, or nonce semantics;
 - turn a normative denial into an allow;
 - erase historical authority needed for reconstruction;
-- claim an undeclared profile.
+- claim an undeclared profile or extension.
+
+Extension-specific rules MAY add additional DENY conditions but MUST NOT make Core more permissive.
 
 ## 21. Non-claims
 
