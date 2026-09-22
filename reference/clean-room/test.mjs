@@ -128,7 +128,8 @@ test('v0.8 undeclared extension fails closed', () => {
   const grant=v08Grant({grant_id:'C',actor:'agent:child'});
   const req=v08Request({extensions:{'mcpaios.unknown.v1':{value:true}}});
   const out=evaluateAuthority({
-    now:v08Now,request:req,grants:[grant],declared_extensions:['mcpaios.example.v1']
+    now:v08Now,request:req,grants:[grant],protocol_version:'0.8.0-draft',
+    declared_extensions:['mcpaios.example.v1']
   });
   assert.equal(out.decision,'DENY');
   assert.ok(out.reasons.includes('MALFORMED_REQUEST'));
