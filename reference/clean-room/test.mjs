@@ -74,7 +74,9 @@ test('v0.8 child with bounded equal-policy delegation allows', () => {
     grant_id:'C', actor:'agent:child', parent_grant_id:'P',
     valid_from:'2026-09-22T20:30:00Z', valid_until:'2026-09-22T21:30:00Z'
   });
-  assert.equal(evaluateAuthority({now:v08Now, request:v08Request(), grants:[parent,child]}).decision, 'ALLOW');
+  assert.equal(evaluateAuthority({
+    now:v08Now, request:v08Request(), grants:[parent,child], protocol_version:'0.8.0-draft'
+  }).decision, 'ALLOW');
 });
 
 for (const [name, mutate] of [
@@ -91,7 +93,9 @@ for (const [name, mutate] of [
     });
     const req=v08Request();
     mutate(parent,child,req);
-    const out=evaluateAuthority({now:v08Now, request:req, grants:[parent,child]});
+    const out=evaluateAuthority({
+      now:v08Now, request:req, grants:[parent,child], protocol_version:'0.8.0-draft'
+    });
     assert.equal(out.decision,'DENY');
     assert.ok(out.reasons.includes('ANCESTOR_INVALID'));
   });
@@ -99,7 +103,9 @@ for (const [name, mutate] of [
 
 test('v0.8 superseded referenced grant is not executable', () => {
   const grant=v08Grant({grant_id:'C',actor:'agent:child',status:'superseded'});
-  const out=evaluateAuthority({now:v08Now,request:v08Request(),grants:[grant]});
+  const out=evaluateAuthority({
+    now:v08Now,request:v08Request(),grants:[grant],protocol_version:'0.8.0-draft'
+  });
   assert.equal(out.decision,'DENY');
   assert.ok(out.reasons.includes('GRANT_NOT_ACTIVE'));
 });
@@ -111,7 +117,8 @@ test('v0.8 declared extensions are fingerprint-bound but cannot override Core de
     extensions:{'mcpaios.example.v1':{actor:'agent:child'}}
   });
   const out=evaluateAuthority({
-    now:v08Now,request:req,grants:[grant],declared_extensions:['mcpaios.example.v1']
+    now:v08Now,request:req,grants:[grant],protocol_version:'0.8.0-draft',
+    declared_extensions:['mcpaios.example.v1']
   });
   assert.equal(out.decision,'DENY');
   assert.ok(out.reasons.includes('ACTOR_MISMATCH'));
