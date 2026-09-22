@@ -50,6 +50,14 @@ function validExtensions(request, declaredExtensions = []) {
   );
 }
 
+function validV08RequestTopLevel(request) {
+  if (!request || typeof request !== 'object' || Array.isArray(request)) return false;
+  const allowed = new Set([
+    'request_id','grant_id','actor','action','target','policy_digest','nonce','requested_at','extensions'
+  ]);
+  return Object.keys(request).every((key) => allowed.has(key));
+}
+
 function authorityDeny(request, grant, reasons) {
   return {
     decision: 'DENY',
@@ -74,7 +82,10 @@ export function evaluateAuthority(input = {}) {
   const required = ['request_id','grant_id','actor','action','target','policy_digest','nonce','requested_at'];
   if (!request
       || required.some(k => typeof request[k] !== 'string' || request[k].length === 0)
-      || (v08 && !validExtensions(request, declared_extensions))) {
+      || (v08 && (
+        !validV08RequestTopLevel(request)
+        || !validExtensions(request, declared_extensions)
+      ))) {
     return authorityDeny(request, null, ['MALFORMED_REQUEST']);
   }
   const byId = new Map(grants.map(g => [g.grant_id, g]));
