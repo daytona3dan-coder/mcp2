@@ -44,12 +44,18 @@ export class MemoryAuthorityStore {
   }
 }
 
-export function verify(request, store, now = new Date(), { declaredExtensions = [] } = {}) {
+export function verify(
+  request,
+  store,
+  now = new Date(),
+  { declaredExtensions = [], protocolVersion = '0.7.0-candidate' } = {},
+) {
+  const v08 = protocolVersion === '0.8.0-draft';
   const malformed = [];
   for (const k of ['request_id','grant_id','actor','action','target','policy_digest','nonce','requested_at']) {
     if (!request || typeof request[k] !== 'string' || request[k].length === 0) malformed.push('MALFORMED_REQUEST');
   }
-  if (request && !validExtensions(request, declaredExtensions)) malformed.push('MALFORMED_REQUEST');
+  if (v08 && request && !validExtensions(request, declaredExtensions)) malformed.push('MALFORMED_REQUEST');
   if (malformed.length) return deny(request, null, now, malformed);
 
   const grant = store.get(request.grant_id);
@@ -93,9 +99,9 @@ export function verify(request, store, now = new Date(), { declaredExtensions = 
     if (parent.status !== 'active' || pFrom === null || pUntil === null || nowMs < pFrom || nowMs >= pUntil) {
       reasons.push('ANCESTOR_INVALID');
     }
-    if (parent.delegation?.allowed !== true) reasons.push('ANCESTOR_INVALID');
-    if (child.principal !== parent.principal) reasons.push('ANCESTOR_INVALID');
-    if (child.policy_digest !== parent.policy_digest) reasons.push('ANCESTOR_INVALID');
+    if (v08 && parent.delegation?.allowed !== true) reasons.push('ANCESTOR_INVALID');
+    if (v08 && child.principal !== parent.principal) reasons.push('ANCESTOR_INVALID');
+    if (v08 && child.policy_digest !== parent.policy_digest) reasons.push('ANCESTOR_INVALID');
     if (!Array.isArray(child.actions) || !Array.isArray(parent.actions) || !subset(child.actions, parent.actions)) {
       reasons.push('ANCESTOR_INVALID');
     }
