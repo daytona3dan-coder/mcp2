@@ -45,9 +45,10 @@ An optional profile must not weaken an `MCP2-CORE` denial.
 
 - `CHARTER.md` — category and non-goals
 - `THREAT_MODEL.md` — trust boundaries and attacker model
-- `SPECIFICATION.md` — Candidate v0.7.0 normative semantics
+- `SPECIFICATION.md` — Draft v0.8.0 normative semantics on this branch
 - `PROFILES.md` — conformance profiles
 - `CONFORMANCE.md` — conformance requirements
+- `KNOWN-LIMITATIONS-V0.7.md` — published v0.7 historical limitations without rewriting closed evidence
 - `protocol-manifest.json` — machine-readable candidate version and conformance binding
 - `schemas/` — JSON Schemas for canonical records
 - `algorithms/` — deterministic verification procedures
