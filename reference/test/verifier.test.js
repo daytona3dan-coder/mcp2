@@ -122,3 +122,71 @@ test('denies unknown grant', () => {
   const s = new MemoryAuthorityStore([]);
   assert.ok(verify(request(), s, NOW).reasons.includes('UNKNOWN_GRANT'));
 });
+
+
+test('denies child when parent delegation is disabled', () => {
+  const parent = grant({grant_id:'AG-PARENT', delegation:{allowed:false}});
+  const child = grant({
+    grant_id:'AG-CHILD', actor:'agent:child', parent_grant_id:'AG-PARENT',
+    valid_from:'2026-09-02T13:10:00Z', valid_until:'2026-09-02T13:50:00Z'
+  });
+  const s = new MemoryAuthorityStore([parent, child]);
+  const d = verify(request({grant_id:'AG-CHILD', actor:'agent:child', nonce:'child-delegation-off'}), s, NOW);
+  assert.equal(d.decision, 'DENY');
+  assert.ok(d.reasons.includes('ANCESTOR_INVALID'));
+});
+
+test('denies child whose principal differs from parent', () => {
+  const parent = grant({grant_id:'AG-PARENT'});
+  const child = grant({
+    grant_id:'AG-CHILD', actor:'agent:child', principal:'human:other',
+    parent_grant_id:'AG-PARENT', valid_from:'2026-09-02T13:10:00Z', valid_until:'2026-09-02T13:50:00Z'
+  });
+  const s = new MemoryAuthorityStore([parent, child]);
+  const d = verify(request({grant_id:'AG-CHILD', actor:'agent:child', nonce:'child-principal'}), s, NOW);
+  assert.equal(d.decision, 'DENY');
+  assert.ok(d.reasons.includes('ANCESTOR_INVALID'));
+});
+
+test('denies child whose policy digest differs from parent', () => {
+  const parent = grant({grant_id:'AG-PARENT'});
+  const childPolicy = 'b'.repeat(64);
+  const child = grant({
+    grant_id:'AG-CHILD', actor:'agent:child', policy_digest:childPolicy,
+    parent_grant_id:'AG-PARENT', valid_from:'2026-09-02T13:10:00Z', valid_until:'2026-09-02T13:50:00Z'
+  });
+  const s = new MemoryAuthorityStore([parent, child]);
+  const d = verify(request({
+    grant_id:'AG-CHILD', actor:'agent:child', policy_digest:childPolicy, nonce:'child-policy'
+  }), s, NOW);
+  assert.equal(d.decision, 'DENY');
+  assert.ok(d.reasons.includes('ANCESTOR_INVALID'));
+});
+
+test('denies superseded grant', () => {
+  const s = new MemoryAuthorityStore([grant({status:'superseded'})]);
+  const d = verify(request({nonce:'superseded'}), s, NOW);
+  assert.equal(d.decision, 'DENY');
+  assert.ok(d.reasons.includes('GRANT_NOT_ACTIVE'));
+});
+
+test('declared extension context is bound but cannot override actor mismatch', () => {
+  const s = new MemoryAuthorityStore([grant()]);
+  const d = verify(request({
+    actor:'agent:evil',
+    nonce:'extension-actor',
+    extensions:{'mcpaios.example.v1':{actor:'agent:alpha', note:'context only'}}
+  }), s, NOW, {declaredExtensions:['mcpaios.example.v1']});
+  assert.equal(d.decision, 'DENY');
+  assert.ok(d.reasons.includes('ACTOR_MISMATCH'));
+});
+
+test('undeclared extension is malformed and cannot reach ALLOW', () => {
+  const s = new MemoryAuthorityStore([grant()]);
+  const d = verify(request({
+    nonce:'extension-undeclared',
+    extensions:{'mcpaios.unknown.v1':{value:true}}
+  }), s, NOW, {declaredExtensions:['mcpaios.example.v1']});
+  assert.equal(d.decision, 'DENY');
+  assert.ok(d.reasons.includes('MALFORMED_REQUEST'));
+});
