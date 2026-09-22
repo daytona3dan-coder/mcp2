@@ -67,6 +67,8 @@ Only an `active` grant is currently executable. A grant with status `revoked` or
 
 ## 5. Verification Request
 
+The MCP2 protocol version used for verification MUST be selected by the verifier/deployment/conformance context. A machine execution request MUST NOT select, downgrade, or override the protocol version.
+
 A verification request MUST bind at least:
 
 - `request_id`
@@ -79,6 +81,8 @@ A verification request MUST bind at least:
 - `requested_at`
 
 The request describes the attempted execution. It does not create authority.
+
+`requested_at` is caller context/evidence. Current validity MUST be evaluated using verifier time at the execution fence, not caller-supplied `requested_at`.
 
 The MCP2 protocol version used to evaluate a request MUST be selected by the verifier's deployment/conformance configuration. It MUST NOT be selected, downgraded, or overridden by fields supplied in the machine execution request. A v0.8 verifier MUST reject undeclared top-level request fields rather than interpreting them as version selectors.
 
@@ -152,7 +156,15 @@ A delegated child grant MUST:
 
 A child MUST NOT survive invalidation of any ancestor. These rules apply transitively to every descendant.
 
+The child `actor` identifies the delegated machine actor and MAY differ from the parent actor. A protected execution MUST exact-match the canonical child actor.
+
+Delegation chains MUST be cycle-free. A verifier MUST detect ancestry cycles and fail closed. An implementation MAY impose a bounded traversal depth for resource protection, but exceeding that bound MUST fail closed rather than truncate verification.
+
+A child may permit further delegation only when its parent permits delegation; no descendant can gain delegation capability from an ancestor chain that did not permit it.
+
 `policy_ref` remains a reference label; `policy_digest` is the normative policy binding used by Core verification.
+
+A grant remains governed by its ratified `policy_digest` until the authority lifecycle expires, revokes, or supersedes that grant. MCP2 Core does not consult an external "latest policy" registry during verification. A policy change that must end existing authority is expressed through the authority lifecycle, not by silently reinterpreting the grant.
 
 MCP2 Core does not consult an external "latest policy" registry during verification. A ratified grant remains bound to its immutable `policy_digest` until the authority lifecycle expires, revokes, or supersedes that grant. Replacing the governing policy therefore requires an explicit authority-lifecycle change; it is not an implicit mutation of an existing grant.
 
@@ -293,6 +305,7 @@ Request extensions MUST be carried under the request's `extensions` object. The 
 A conforming implementation that accepts request extensions MUST:
 
 - publish the accepted extension identifiers and versions in its protocol/conformance declaration;
+- use stable namespaced identifiers (reverse-DNS style or an equivalently collision-resistant registered prefix);
 - use stable namespaced extension identifiers; reverse-DNS style identifiers are RECOMMENDED;
 - publish any supported or forbidden extension combinations and any size/depth limits;
 - validate each extension independently against its declared schema before protected execution;
@@ -312,6 +325,17 @@ Extensions MUST NOT:
 - claim an undeclared profile or extension.
 
 Extension-specific rules MAY add additional DENY conditions but MUST NOT make Core more permissive.
+
+If an implementation permits multiple extensions on one protected request:
+
+- every extension MUST be declared and independently validated;
+- extension evaluation MUST be order-independent;
+- any extension-specific denial MUST prevent ALLOW;
+- extensions MUST NOT define overlapping or conflicting meanings for the same Core field or authority semantic.
+
+An implementation MAY declare a stricter product limit such as one extension per protected request.
+
+Request extensions MUST NOT be treated as human ratification or approval. In particular, workflow, planner, model, or Spec Kit gate state carried as extension context is evidence/process context only and MUST NOT create or substitute for MCP2 authority. MCP2 request extensions are independent of the Model Context Protocol (MCP) extension negotiation mechanism; sharing the word "extension" does not imply protocol coupling.
 
 An implementation MAY support only one request extension per protected operation if that limitation is declared. A consequential operation nested inside another governed operation (for example, an MCP tool invoked from a model leg) SHOULD cross its own authority fence when it is independently consequential rather than inheriting the enclosing operation's ALLOW.
 
