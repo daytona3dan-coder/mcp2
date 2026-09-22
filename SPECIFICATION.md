@@ -67,7 +67,7 @@ Only an `active` grant is currently executable. A grant with status `revoked` or
 
 ## 5. Verification Request
 
-The MCP2 protocol version used for verification MUST be selected by verifier deployment/conformance configuration. A machine execution request MUST NOT select, downgrade, or override the protocol version.
+The MCP2 protocol version used for verification MUST be selected by verifier deployment/conformance configuration. It MUST NOT be selected, downgraded, or overridden by fields supplied in the machine execution request.
 
 A verification request MUST bind at least:
 
