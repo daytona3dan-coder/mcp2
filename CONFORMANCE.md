@@ -28,11 +28,18 @@ An `MCP2-CORE` implementation MUST demonstrate deterministic handling of at leas
 - child principal differs from parent → DENY;
 - child policy digest differs from parent → DENY;
 - superseded referenced grant or ancestor → DENY;
+- valid multi-hop delegation chain → ALLOW;
+- invalid delegation invariant two or more hops up → DENY;
+- ancestry cycle or declared traversal-resource exhaustion → DENY;
+- verifier-selected protocol version cannot be overridden by request input;
+- verifier time, not caller `requested_at`, controls validity;
 - malformed or undeclared required extension context → DENY/fail closed;
 - extension context cannot override a Core actor/action/target/policy denial;
 - replay → DENY;
 - malformed request → DENY;
 - protected execution not reached after DENY;
+- duplicate JSON object members rejected at parser ingress;
+- RFC 8785/JCS request fingerprint golden vectors;
 - receipt integrity;
 - historical decision reconstruction.
 
