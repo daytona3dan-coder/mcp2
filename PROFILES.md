@@ -72,7 +72,7 @@ Where replacement-provider qualification is required, external qualification evi
 A product or implementation claiming MCP2 conformance MUST publish a declaration comparable to:
 
 ```text
-MCP2 version: 0.7.0-candidate
+MCP2 version: 0.8.0-draft
 Profiles:
 - MCP2-CORE
 - MCP2-WITNESS
