@@ -1,6 +1,6 @@
 # MCP2 — Machine Authority Protocol
 
-**Status:** Candidate v0.7.0  
+**Status:** Draft v0.8.0 development on this branch; Candidate v0.7.0 remains the last frozen release on main  
 **Purpose:** Define and verify bounded, revocable, receipted machine authority.
 
 MCP2 answers one question:
@@ -23,14 +23,14 @@ MCP2 is **not** MCP v2, an MCP replacement, an identity provider, or an agent or
 
 `REVOKE` may invalidate authority before execution.
 
-## Candidate profiles
+## Profiles
 
 - `MCP2-CORE` — canonical grant resolution, verification, delegation, revocation, replay protection, execution fencing, receipts, and reconstruction.
 - Optional evidence profiles are defined in `PROFILES.md` and cover witness quorum, freshness, root epochs, external time, threshold timestamp authorities, and provider epochs.
 
 An optional profile must not weaken an `MCP2-CORE` denial.
 
-## Candidate invariants
+## Core invariants
 
 1. Caller-supplied grant properties are never authoritative.
 2. Verification resolves the canonical grant by `grant_id`.
