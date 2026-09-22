@@ -37,5 +37,6 @@
     "reasons": [
       "GRANT_NOT_ACTIVE"
     ]
-  }
+  },
+  "protocol_version": "0.8.0-draft"
 }
