@@ -42,45 +42,45 @@ function request(overrides = {}) {
 
 test('allows exact valid authority', () => {
   const s = new MemoryAuthorityStore([grant()]);
-  assert.equal(verify(request(), s, NOW).decision, 'ALLOW');
+  assert.equal(verify07(request(), s, NOW).decision, 'ALLOW');
 });
 
 test('denies wrong actor', () => {
   const s = new MemoryAuthorityStore([grant()]);
-  const d = verify(request({actor:'agent:evil'}), s, NOW);
+  const d = verify07(request({actor:'agent:evil'}), s, NOW);
   assert.equal(d.decision, 'DENY');
   assert.ok(d.reasons.includes('ACTOR_MISMATCH'));
 });
 
 test('denies wrong action', () => {
   const s = new MemoryAuthorityStore([grant()]);
-  assert.ok(verify(request({action:'vault.delete'}), s, NOW).reasons.includes('ACTION_NOT_ALLOWED'));
+  assert.ok(verify07(request({action:'vault.delete'}), s, NOW).reasons.includes('ACTION_NOT_ALLOWED'));
 });
 
 test('denies wrong target', () => {
   const s = new MemoryAuthorityStore([grant()]);
-  assert.ok(verify(request({target:'chatvault:record-999'}), s, NOW).reasons.includes('TARGET_NOT_ALLOWED'));
+  assert.ok(verify07(request({target:'chatvault:record-999'}), s, NOW).reasons.includes('TARGET_NOT_ALLOWED'));
 });
 
 test('denies policy drift', () => {
   const s = new MemoryAuthorityStore([grant()]);
-  assert.ok(verify(request({policy_digest:'b'.repeat(64)}), s, NOW).reasons.includes('POLICY_DIGEST_MISMATCH'));
+  assert.ok(verify07(request({policy_digest:'b'.repeat(64)}), s, NOW).reasons.includes('POLICY_DIGEST_MISMATCH'));
 });
 
 test('denies expired grant', () => {
   const s = new MemoryAuthorityStore([grant({valid_until:'2026-09-02T13:29:59Z'})]);
-  assert.ok(verify(request(), s, NOW).reasons.includes('EXPIRED'));
+  assert.ok(verify07(request(), s, NOW).reasons.includes('EXPIRED'));
 });
 
 test('denies revoked grant', () => {
   const s = new MemoryAuthorityStore([grant({status:'revoked'})]);
-  assert.ok(verify(request(), s, NOW).reasons.includes('GRANT_NOT_ACTIVE'));
+  assert.ok(verify07(request(), s, NOW).reasons.includes('GRANT_NOT_ACTIVE'));
 });
 
 test('denies replay after successful allow', () => {
   const s = new MemoryAuthorityStore([grant()]);
-  assert.equal(verify(request(), s, NOW).decision, 'ALLOW');
-  const d = verify(request({request_id:'REQ-002'}), s, NOW);
+  assert.equal(verify07(request(), s, NOW).decision, 'ALLOW');
+  const d = verify07(request({request_id:'REQ-002'}), s, NOW);
   assert.ok(d.reasons.includes('REPLAY'));
 });
 
@@ -115,7 +115,7 @@ test('denies child scope expansion', () => {
     valid_until:'2026-09-02T13:50:00Z'
   });
   const s = new MemoryAuthorityStore([parent, child]);
-  const d = verify(request({
+  const d = verify07(request({
     grant_id:'AG-CHILD', actor:'agent:child', action:'vault.read', nonce:'child-scope'
   }), s, NOW);
   assert.ok(d.reasons.includes('ANCESTOR_INVALID'));
@@ -123,7 +123,7 @@ test('denies child scope expansion', () => {
 
 test('denies unknown grant', () => {
   const s = new MemoryAuthorityStore([]);
-  assert.ok(verify(request(), s, NOW).reasons.includes('UNKNOWN_GRANT'));
+  assert.ok(verify07(request(), s, NOW).reasons.includes('UNKNOWN_GRANT'));
 });
 
 
