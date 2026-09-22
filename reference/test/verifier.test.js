@@ -131,7 +131,10 @@ test('denies child when parent delegation is disabled', () => {
     valid_from:'2026-09-02T13:10:00Z', valid_until:'2026-09-02T13:50:00Z'
   });
   const s = new MemoryAuthorityStore([parent, child]);
-  const d = verify(request({grant_id:'AG-CHILD', actor:'agent:child', nonce:'child-delegation-off'}), s, NOW);
+  const d = verify(
+    request({grant_id:'AG-CHILD', actor:'agent:child', nonce:'child-delegation-off'}),
+    s, NOW, {protocolVersion:'0.8.0-draft'},
+  );
   assert.equal(d.decision, 'DENY');
   assert.ok(d.reasons.includes('ANCESTOR_INVALID'));
 });
@@ -143,7 +146,10 @@ test('denies child whose principal differs from parent', () => {
     parent_grant_id:'AG-PARENT', valid_from:'2026-09-02T13:10:00Z', valid_until:'2026-09-02T13:50:00Z'
   });
   const s = new MemoryAuthorityStore([parent, child]);
-  const d = verify(request({grant_id:'AG-CHILD', actor:'agent:child', nonce:'child-principal'}), s, NOW);
+  const d = verify(
+    request({grant_id:'AG-CHILD', actor:'agent:child', nonce:'child-principal'}),
+    s, NOW, {protocolVersion:'0.8.0-draft'},
+  );
   assert.equal(d.decision, 'DENY');
   assert.ok(d.reasons.includes('ANCESTOR_INVALID'));
 });
@@ -158,14 +164,14 @@ test('denies child whose policy digest differs from parent', () => {
   const s = new MemoryAuthorityStore([parent, child]);
   const d = verify(request({
     grant_id:'AG-CHILD', actor:'agent:child', policy_digest:childPolicy, nonce:'child-policy'
-  }), s, NOW);
+  }), s, NOW, {protocolVersion:'0.8.0-draft'});
   assert.equal(d.decision, 'DENY');
   assert.ok(d.reasons.includes('ANCESTOR_INVALID'));
 });
 
 test('denies superseded grant', () => {
   const s = new MemoryAuthorityStore([grant({status:'superseded'})]);
-  const d = verify(request({nonce:'superseded'}), s, NOW);
+  const d = verify(request({nonce:'superseded'}), s, NOW, {protocolVersion:'0.8.0-draft'});
   assert.equal(d.decision, 'DENY');
   assert.ok(d.reasons.includes('GRANT_NOT_ACTIVE'));
 });
@@ -176,7 +182,10 @@ test('declared extension context is bound but cannot override actor mismatch', (
     actor:'agent:evil',
     nonce:'extension-actor',
     extensions:{'mcpaios.example.v1':{actor:'agent:alpha', note:'context only'}}
-  }), s, NOW, {declaredExtensions:['mcpaios.example.v1']});
+  }), s, NOW, {
+    protocolVersion:'0.8.0-draft',
+    declaredExtensions:['mcpaios.example.v1'],
+  });
   assert.equal(d.decision, 'DENY');
   assert.ok(d.reasons.includes('ACTOR_MISMATCH'));
 });
