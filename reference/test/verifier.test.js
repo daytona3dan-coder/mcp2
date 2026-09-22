@@ -263,3 +263,15 @@ test('strict JSON ingress rejects duplicate extensions keys at nested levels', (
     /duplicate object member "x"/,
   );
 });
+
+
+test('v0.8 validity uses verifier time, not caller requested_at', () => {
+  const s = new MemoryAuthorityStore([grant()]);
+  const d = verify(
+    request({ nonce:'verifier-time', requested_at:'1999-01-01T00:00:00Z' }),
+    s,
+    NOW,
+    { protocolVersion:'0.8.0-draft' },
+  );
+  assert.equal(d.decision, 'ALLOW');
+});
