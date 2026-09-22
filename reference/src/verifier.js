@@ -19,6 +19,18 @@ function subset(child, parent) {
   return child.every(x => parent.includes(x));
 }
 
+function validExtensions(request, declaredExtensions) {
+  if (!Object.prototype.hasOwnProperty.call(request, 'extensions')) return true;
+  const value = request.extensions;
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const prototype = Object.getPrototypeOf(value);
+  if (prototype !== Object.prototype && prototype !== null) return false;
+  const declared = new Set(declaredExtensions);
+  return Object.keys(value).every((key) =>
+    /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/.test(key) && declared.has(key)
+  );
+}
+
 export class MemoryAuthorityStore {
   constructor(grants = [], usedNonces = []) {
     this.grants = new Map(grants.map(g => [g.grant_id, structuredClone(g)]));
@@ -32,11 +44,12 @@ export class MemoryAuthorityStore {
   }
 }
 
-export function verify(request, store, now = new Date()) {
+export function verify(request, store, now = new Date(), { declaredExtensions = [] } = {}) {
   const malformed = [];
   for (const k of ['request_id','grant_id','actor','action','target','policy_digest','nonce','requested_at']) {
     if (!request || typeof request[k] !== 'string' || request[k].length === 0) malformed.push('MALFORMED_REQUEST');
   }
+  if (request && !validExtensions(request, declaredExtensions)) malformed.push('MALFORMED_REQUEST');
   if (malformed.length) return deny(request, null, now, malformed);
 
   const grant = store.get(request.grant_id);
@@ -80,6 +93,9 @@ export function verify(request, store, now = new Date()) {
     if (parent.status !== 'active' || pFrom === null || pUntil === null || nowMs < pFrom || nowMs >= pUntil) {
       reasons.push('ANCESTOR_INVALID');
     }
+    if (parent.delegation?.allowed !== true) reasons.push('ANCESTOR_INVALID');
+    if (child.principal !== parent.principal) reasons.push('ANCESTOR_INVALID');
+    if (child.policy_digest !== parent.policy_digest) reasons.push('ANCESTOR_INVALID');
     if (!Array.isArray(child.actions) || !Array.isArray(parent.actions) || !subset(child.actions, parent.actions)) {
       reasons.push('ANCESTOR_INVALID');
     }
