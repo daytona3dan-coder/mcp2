@@ -30,6 +30,9 @@ test('normative documents preserve protocol/implementation and v0.8 boundaries',
   assert.match(spec, /child principal equals parent principal/);
   assert.match(spec, /child policy digest equals parent policy digest/);
   assert.match(spec, /extensions/);
+  assert.match(spec, /RFC 8785/);
+  assert.match(spec, /MUST NOT be selected, downgraded, or overridden by fields supplied in the machine execution request/);
+  assert.match(spec, /requested_at.*MUST NOT substitute for verifier time/s);
   assert.match(spec, /MUST fail closed/);
   assert.match(profiles, /MCP2-CORE/);
   assert.match(profiles, /MCP2-PROVIDER-EPOCH/);
