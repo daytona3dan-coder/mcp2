@@ -1,9 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { MemoryAuthorityStore, verify } from '../src/verifier.js';
+import { parseJsonRejectDuplicateKeys } from '../src/strict-json.js';
 
 const POLICY = 'a'.repeat(64);
 const NOW = new Date('2026-09-02T13:30:00Z');
+const V07 = Object.freeze({ protocolVersion: '0.7.0-candidate' });
+function verify07(req, store, now = NOW) { return verify(req, store, now, V07); }
 
 function grant(overrides = {}) {
   return {
@@ -91,12 +94,12 @@ test('denies child after parent revocation', () => {
     valid_until:'2026-09-02T13:50:00Z'
   });
   const s = new MemoryAuthorityStore([parent, child]);
-  let d = verify(request({grant_id:'AG-CHILD', actor:'agent:child', nonce:'child-1'}), s, NOW);
+  let d = verify07(request({grant_id:'AG-CHILD', actor:'agent:child', nonce:'child-1'}), s, NOW);
   assert.equal(d.decision, 'ALLOW');
 
   parent.status = 'revoked';
   s.grants.set(parent.grant_id, parent);
-  d = verify(request({grant_id:'AG-CHILD', actor:'agent:child', nonce:'child-2', request_id:'REQ-CHILD-2'}), s, NOW);
+  d = verify07(request({grant_id:'AG-CHILD', actor:'agent:child', nonce:'child-2', request_id:'REQ-CHILD-2'}), s, NOW);
   assert.equal(d.decision, 'DENY');
   assert.ok(d.reasons.includes('ANCESTOR_INVALID'));
 });
@@ -239,4 +242,24 @@ test('v0.8 rejects malformed extension container shape', () => {
   });
   assert.equal(d.decision, 'DENY');
   assert.ok(d.reasons.includes('MALFORMED_REQUEST'));
+});
+
+
+test('reference verifier requires protocol version from verifier configuration', () => {
+  const s = new MemoryAuthorityStore([grant()]);
+  assert.throws(() => verify(request(), s, NOW), /MCP2_PROTOCOL_VERSION_REQUIRED_OR_UNSUPPORTED/);
+});
+
+test('strict JSON ingress rejects duplicate actor keys', () => {
+  assert.throws(
+    () => parseJsonRejectDuplicateKeys('{"actor":"agent:a","actor":"agent:b"}'),
+    /duplicate object member "actor"/,
+  );
+});
+
+test('strict JSON ingress rejects duplicate extensions keys at nested levels', () => {
+  assert.throws(
+    () => parseJsonRejectDuplicateKeys('{"extensions":{"mcpaios.example.v1":{"x":1,"x":2}}}'),
+    /duplicate object member "x"/,
+  );
 });
