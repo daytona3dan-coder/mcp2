@@ -45,5 +45,6 @@
     "reasons": [
       "MALFORMED_REQUEST"
     ]
-  }
+  },
+  "protocol_version": "0.8.0-draft"
 }
