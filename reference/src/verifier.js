@@ -56,8 +56,11 @@ export function verify(
   request,
   store,
   now = new Date(),
-  { declaredExtensions = [], protocolVersion = '0.7.0-candidate' } = {},
+  { declaredExtensions = [], protocolVersion } = {},
 ) {
+  if (!['0.7.0-candidate','0.8.0-draft'].includes(protocolVersion)) {
+    throw new Error('MCP2_PROTOCOL_VERSION_REQUIRED_OR_UNSUPPORTED');
+  }
   const v08 = protocolVersion === '0.8.0-draft';
   const malformed = [];
   for (const k of ['request_id','grant_id','actor','action','target','policy_digest','nonce','requested_at']) {
