@@ -19,6 +19,7 @@ function setPath(root, path, value) {
 }
 function materialize(vector) {
   const bundle = clone(manifest.base_bundle);
+  bundle.authority = { ...(bundle.authority ?? {}), protocol_version: '0.7.0-candidate' };
   for (const mutation of vector.mutations ?? []) setPath(bundle, mutation.path, mutation.value);
   return bundle;
 }
