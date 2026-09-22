@@ -195,7 +195,10 @@ test('undeclared extension is malformed and cannot reach ALLOW', () => {
   const d = verify(request({
     nonce:'extension-undeclared',
     extensions:{'mcpaios.unknown.v1':{value:true}}
-  }), s, NOW, {declaredExtensions:['mcpaios.example.v1']});
+  }), s, NOW, {
+    protocolVersion:'0.8.0-draft',
+    declaredExtensions:['mcpaios.example.v1'],
+  });
   assert.equal(d.decision, 'DENY');
   assert.ok(d.reasons.includes('MALFORMED_REQUEST'));
 });
