@@ -202,3 +202,41 @@ test('undeclared extension is malformed and cannot reach ALLOW', () => {
   assert.equal(d.decision, 'DENY');
   assert.ok(d.reasons.includes('MALFORMED_REQUEST'));
 });
+
+
+test('declared extension cannot override policy mismatch', () => {
+  const s = new MemoryAuthorityStore([grant()]);
+  const d = verify(request({
+    policy_digest:'b'.repeat(64),
+    nonce:'extension-policy',
+    extensions:{'mcpaios.example.v1':{policy_digest:'a'.repeat(64)}}
+  }), s, NOW, {
+    protocolVersion:'0.8.0-draft',
+    declaredExtensions:['mcpaios.example.v1'],
+  });
+  assert.equal(d.decision, 'DENY');
+  assert.ok(d.reasons.includes('POLICY_DIGEST_MISMATCH'));
+});
+
+test('v0.8 rejects undeclared top-level request fields', () => {
+  const s = new MemoryAuthorityStore([grant()]);
+  const d = verify({
+    ...request({nonce:'top-level-extra'}),
+    multi_model:{attempt_id:'caller-smuggled'}
+  }, s, NOW, {protocolVersion:'0.8.0-draft'});
+  assert.equal(d.decision, 'DENY');
+  assert.ok(d.reasons.includes('MALFORMED_REQUEST'));
+});
+
+test('v0.8 rejects malformed extension container shape', () => {
+  const s = new MemoryAuthorityStore([grant()]);
+  const d = verify({
+    ...request({nonce:'bad-extensions'}),
+    extensions:[]
+  }, s, NOW, {
+    protocolVersion:'0.8.0-draft',
+    declaredExtensions:['mcpaios.example.v1'],
+  });
+  assert.equal(d.decision, 'DENY');
+  assert.ok(d.reasons.includes('MALFORMED_REQUEST'));
+});
