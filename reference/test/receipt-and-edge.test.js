@@ -5,6 +5,8 @@ import { makeReceipt, reconstruct } from '../src/receipt.js';
 
 const POLICY = 'a'.repeat(64);
 const NOW = new Date('2026-09-02T13:30:00Z');
+const V07 = Object.freeze({ protocolVersion: '0.7.0-candidate' });
+function verify07(req, store, now = NOW) { return verify(req, store, now, V07); }
 
 function grant(overrides = {}) {
   return {
@@ -27,12 +29,12 @@ function request(overrides = {}) {
 
 test('denies not-yet-valid grant', () => {
   const s = new MemoryAuthorityStore([grant({valid_from:'2026-09-02T13:31:00Z'})]);
-  assert.ok(verify(request(), s, NOW).reasons.includes('NOT_YET_VALID'));
+  assert.ok(verify07(request(), s, NOW).reasons.includes('NOT_YET_VALID'));
 });
 
 test('denies malformed request', () => {
   const s = new MemoryAuthorityStore([grant()]);
-  const d = verify({grant_id:'AG-001'}, s, NOW);
+  const d = verify07({grant_id:'AG-001'}, s, NOW);
   assert.equal(d.decision, 'DENY');
   assert.ok(d.reasons.includes('MALFORMED_REQUEST'));
 });
@@ -41,7 +43,7 @@ test('denies cyclic ancestry', () => {
   const a = grant({grant_id:'A', parent_grant_id:'B'});
   const b = grant({grant_id:'B', parent_grant_id:'A'});
   const s = new MemoryAuthorityStore([a,b]);
-  const d = verify(request({grant_id:'A'}), s, NOW);
+  const d = verify07(request({grant_id:'A'}), s, NOW);
   assert.ok(d.reasons.includes('ANCESTOR_INVALID'));
 });
 
@@ -50,14 +52,14 @@ test('denies child validity wider than parent', () => {
   const child = grant({grant_id:'C', actor:'agent:child', parent_grant_id:'P',
     valid_from:'2026-09-02T13:00:00Z', valid_until:'2026-09-02T14:00:00Z'});
   const s = new MemoryAuthorityStore([parent,child]);
-  const d = verify(request({grant_id:'C',actor:'agent:child'}), s, NOW);
+  const d = verify07(request({grant_id:'C',actor:'agent:child'}), s, NOW);
   assert.ok(d.reasons.includes('ANCESTOR_INVALID'));
 });
 
 test('receipt binds decision and reconstructs', () => {
   const s = new MemoryAuthorityStore([grant()]);
   const req = request({nonce:'receipt-1'});
-  const d = verify(req, s, NOW);
+  const d = verify07(req, s, NOW);
   assert.equal(d.decision, 'ALLOW');
   const r = makeReceipt(d, req, POLICY, {bytes_read:42}, 'RCPT-001');
   assert.equal(r.decision, 'ALLOW');
@@ -69,7 +71,7 @@ test('receipt binds decision and reconstructs', () => {
 test('reconstruction detects changed request', () => {
   const s = new MemoryAuthorityStore([grant()]);
   const req = request({nonce:'receipt-2'});
-  const d = verify(req, s, NOW);
+  const d = verify07(req, s, NOW);
   const r = makeReceipt(d, req, POLICY, null, 'RCPT-002');
   const changed = {...req, target:'chatvault:record-999'};
   assert.equal(reconstruct({receipt:r, request:changed, decision:d}).valid, false);
