@@ -80,6 +80,10 @@ A verification request MUST bind at least:
 
 The request describes the attempted execution. It does not create authority.
 
+The MCP2 protocol version used to evaluate a request MUST be selected by the verifier's deployment/conformance configuration. It MUST NOT be selected, downgraded, or overridden by fields supplied in the machine execution request. A v0.8 verifier MUST reject undeclared top-level request fields rather than interpreting them as version selectors.
+
+`requested_at` is caller-supplied request evidence. Current authority validity MUST be evaluated against verifier time at the execution fence; `requested_at` MUST NOT substitute for verifier time.
+
 A request MAY include an `extensions` object. Each extension member MUST use an implementation-declared extension identifier. Extension material is evidence/context bound to the request; it MUST NOT override or reinterpret Core actor, action, target, grant, policy, validity, ancestry, or replay semantics.
 
 ## 6. Verification algorithm
@@ -100,15 +104,17 @@ A conforming `MCP2-CORE` verifier MUST, at the last responsible moment before pr
 12. for every immediate child/parent pair in the chain, require:
     - the parent explicitly permits delegation;
     - child principal equals parent principal;
+    - the request actor exact-matches the referenced child grant actor;
     - child actions are a subset of parent actions;
     - child targets are a subset of parent targets;
     - child validity is fully contained by parent validity;
     - child policy digest equals parent policy digest;
-13. validate any request extension material against the implementation's declared extension contracts; malformed or undeclared extension material MUST NOT produce ALLOW;
-14. deny a nonce already consumed inside the declared replay domain;
-15. atomically consume the nonce with a successful decision in production implementations;
-16. return `ALLOW` only if every applicable check succeeds;
-17. otherwise return `DENY`.
+13. detect ancestry cycles and fail closed; an implementation MAY enforce a declared finite ancestry-depth/resource limit, but exhausting that limit MUST DENY rather than truncate the chain;
+14. validate any request extension material against the implementation's declared extension contracts; malformed or undeclared extension material MUST NOT produce ALLOW;
+15. deny a nonce already consumed inside the declared replay domain;
+16. atomically consume the nonce with a successful decision in production implementations;
+17. return `ALLOW` only if every applicable check succeeds;
+18. otherwise return `DENY`.
 
 A verifier MUST fail closed when required authority material cannot be validated.
 
@@ -136,6 +142,7 @@ A delegated child grant is valid only when its immediate parent exists, is activ
 
 A delegated child grant MUST:
 
+- bind an exact child `actor`; the child actor identifies the delegated machine and MAY differ from the parent actor;
 - preserve the same `principal` as its immediate parent;
 - preserve the same `policy_digest` as its immediate parent unless a separately declared future constrained-policy-inheritance profile defines otherwise;
 - authorize only actions present in its immediate parent;
@@ -146,6 +153,8 @@ A delegated child grant MUST:
 A child MUST NOT survive invalidation of any ancestor. These rules apply transitively to every descendant.
 
 `policy_ref` remains a reference label; `policy_digest` is the normative policy binding used by Core verification.
+
+MCP2 Core does not consult an external "latest policy" registry during verification. A ratified grant remains bound to its immutable `policy_digest` until the authority lifecycle expires, revokes, or supersedes that grant. Replacing the governing policy therefore requires an explicit authority-lifecycle change; it is not an implicit mutation of an existing grant.
 
 ## 9. Revocation
 
@@ -161,6 +170,8 @@ Current eligibility and historical inspectability are distinct concepts.
 
 A nonce MUST be single-use inside the declared replay domain.
 
+Replay identity is distinct from any implementation-specific workflow/run/attempt identity. A higher-level attempt ledger MAY impose additional at-most-once rules, but it MUST NOT weaken Core nonce replay protection.
+
 A production `ALLOW` and its nonce consumption MUST be atomic with respect to competing verification attempts.
 
 A replayed request MUST NOT cross the protected execution boundary a second time.
@@ -173,7 +184,19 @@ Planning-time approval, session-start approval, or possession of an old `ALLOW` 
 
 A `DENY` MUST prevent the protected operation from executing.
 
-## 12. Receipt
+## 12. Canonical request encoding and fingerprints
+
+For Draft v0.8, a portable request fingerprint MUST be computed from the complete accepted verification request using RFC 8785 JSON Canonicalization Scheme (JCS), UTF-8 encoded, then SHA-256 hashed.
+
+Transport/parser ingress MUST reject JSON objects containing duplicate member names before they are converted to a map/object representation. This applies at every object level, including the top-level request and `extensions` members.
+
+A verifier MUST reject values that JCS cannot canonically serialize, including non-finite numbers and invalid Unicode scalar data.
+
+The canonicalized request MUST include the complete accepted `extensions` object. Implementations MUST NOT strip unknown extension members and then fingerprint the reduced object; undeclared or malformed members must fail validation.
+
+Historical v0.7 fingerprints remain historical evidence and MUST NOT be rewritten to v0.8 JCS.
+
+## 13. Receipt
 
 A conforming implementation MUST emit or durably bind a decision receipt sufficient to identify:
 
@@ -188,7 +211,7 @@ A conforming implementation MUST emit or durably bind a decision receipt suffici
 
 Receipt material MUST be integrity-bound. Tampering that changes authority-relevant receipt material MUST be detectable.
 
-## 13. Reconstruction
+## 14. Reconstruction
 
 Given the canonical records and evidence applicable at the original decision time, a conforming implementation SHOULD be able to reproduce:
 
@@ -202,7 +225,7 @@ Given the canonical records and evidence applicable at the original decision tim
 
 Reconstruction MUST distinguish historical validity from current eligibility.
 
-## 14. Evidence profiles
+## 15. Evidence profiles
 
 MCP2 evidence profiles extend proof quality without changing Core authority semantics.
 
@@ -218,7 +241,7 @@ Profiles MAY provide:
 
 Profile rules are normative only for implementations declaring that profile. See `PROFILES.md`.
 
-## 15. Historical versus current trust
+## 16. Historical versus current trust
 
 Across all profiles:
 
@@ -227,7 +250,7 @@ Across all profiles:
 - a cryptographically valid artifact from a compromised authority MUST NOT by itself establish post-compromise provenance;
 - stale distributed authority MUST NOT be treated as executable current authority.
 
-## 16. External time
+## 17. External time
 
 An implementation declaring an external-time profile MUST treat externally assigned provider time as evidence distinct from self-asserted internal timestamps.
 
@@ -235,7 +258,7 @@ A single provider MUST NOT satisfy a profile whose declared threshold requires m
 
 Provider unavailability, disagreement, compromise, and membership rotation MUST be handled according to the declared profile rather than silently reducing the threshold.
 
-## 17. Provider membership
+## 18. Provider membership
 
 An implementation declaring timestamp-provider membership epochs MUST:
 
@@ -247,7 +270,7 @@ An implementation declaring timestamp-provider membership epochs MUST:
 - prevent a compromised provider from regaining current trust merely because its historical evidence still exists;
 - bind replacement-provider qualification before admission when the profile requires qualification evidence.
 
-## 18. Conformance and independent verification
+## 19. Conformance and independent verification
 
 MCP2 conformance is defined by the public protocol, declared profiles, schemas, and conformance vectors—not by the behavior or assertions of any single commercial implementation.
 
@@ -255,13 +278,13 @@ A conforming implementation MUST produce the expected deterministic verdicts for
 
 An implementation MAY use MCPaios, but MCPaios is not the MCP2 truth authority.
 
-## 19. Fail-closed rule
+## 20. Fail-closed rule
 
 When required current authority, canonical state, cryptographic validation, threshold evidence, provider membership, or replay state cannot be established, the verifier MUST fail closed.
 
 Unavailable evidence is not equivalent to affirmative authorization.
 
-## 20. Extension rule
+## 21. Extension rule
 
 Implementations MAY add transports, storage systems, identity systems, policy languages, evidence providers, and declared request extensions.
 
@@ -270,8 +293,13 @@ Request extensions MUST be carried under the request's `extensions` object. The 
 A conforming implementation that accepts request extensions MUST:
 
 - publish the accepted extension identifiers and versions in its protocol/conformance declaration;
-- validate extension shape before protected execution;
-- bind accepted extension material into the same request fingerprint/evidence used for the authority decision;
+- use stable namespaced extension identifiers; reverse-DNS style identifiers are RECOMMENDED;
+- publish any supported or forbidden extension combinations and any size/depth limits;
+- validate each extension independently against its declared schema before protected execution;
+- require extension schemas to reject undeclared members unless that extension specification explicitly defines an open sub-object;
+- bind accepted extension material into the same canonical request fingerprint/evidence used for the authority decision;
+- evaluate multiple extensions monotonically and order-independently when composition is supported: every extension must validate, and any extension-specific denial wins;
+- reject extension combinations whose semantics overlap or conflict with each other or with Core;
 - fail deterministically when required extension material is malformed or an extension identifier is undeclared.
 
 Extensions MUST NOT:
@@ -285,7 +313,13 @@ Extensions MUST NOT:
 
 Extension-specific rules MAY add additional DENY conditions but MUST NOT make Core more permissive.
 
-## 21. Non-claims
+An implementation MAY support only one request extension per protected operation if that limitation is declared. A consequential operation nested inside another governed operation (for example, an MCP tool invoked from a model leg) SHOULD cross its own authority fence when it is independently consequential rather than inheriting the enclosing operation's ALLOW.
+
+Request extensions are evidence/context, not ratification. An extension MUST NOT treat workflow approval, task completion, a Spec Kit gate, model rationale, or other planning/process state as MCP2 authority.
+
+The MCP2 request-extension mechanism is independent of the Model Context Protocol (MCP) extension-negotiation mechanism. Sharing the word "extension" does not create negotiation or conformance coupling.
+
+## 22. Non-claims
 
 Candidate v0.7.0 does not claim:
 
