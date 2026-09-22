@@ -18,7 +18,10 @@ let failed = 0;
 for (const file of walk(vectorsRoot).filter(f => f.endsWith('.json'))) {
   const v = JSON.parse(fs.readFileSync(file,'utf8'));
   const s = new MemoryAuthorityStore(v.grants ?? [], v.preconsumed_nonces ?? []);
-  const d = verify(v.request, s, fixedNow, { declaredExtensions: v.declared_extensions ?? [] });
+  const d = verify(v.request, s, fixedNow, {
+    declaredExtensions: v.declared_extensions ?? [],
+    protocolVersion: v.protocol_version ?? '0.7.0-candidate',
+  });
   const reasonsOk = JSON.stringify(d.reasons) === JSON.stringify([...(v.expected.reasons ?? [])].sort());
   const ok = d.decision === v.expected.decision && reasonsOk;
   console.log(`${ok ? 'PASS' : 'FAIL'} ${path.relative(vectorsRoot,file)} => ${d.decision} ${d.reasons.join(',')}`);
