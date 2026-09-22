@@ -31,6 +31,14 @@ function validExtensions(request, declaredExtensions) {
   );
 }
 
+function validV08RequestTopLevel(request) {
+  if (!request || typeof request !== 'object' || Array.isArray(request)) return false;
+  const allowed = new Set([
+    'request_id','grant_id','actor','action','target','policy_digest','nonce','requested_at','extensions'
+  ]);
+  return Object.keys(request).every((key) => allowed.has(key));
+}
+
 export class MemoryAuthorityStore {
   constructor(grants = [], usedNonces = []) {
     this.grants = new Map(grants.map(g => [g.grant_id, structuredClone(g)]));
@@ -55,7 +63,10 @@ export function verify(
   for (const k of ['request_id','grant_id','actor','action','target','policy_digest','nonce','requested_at']) {
     if (!request || typeof request[k] !== 'string' || request[k].length === 0) malformed.push('MALFORMED_REQUEST');
   }
-  if (v08 && request && !validExtensions(request, declaredExtensions)) malformed.push('MALFORMED_REQUEST');
+  if (v08 && request && (
+    !validV08RequestTopLevel(request)
+    || !validExtensions(request, declaredExtensions)
+  )) malformed.push('MALFORMED_REQUEST');
   if (malformed.length) return deny(request, null, now, malformed);
 
   const grant = store.get(request.grant_id);
