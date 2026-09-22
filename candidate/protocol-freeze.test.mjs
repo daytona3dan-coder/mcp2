@@ -8,27 +8,33 @@ const profiles = read('PROFILES.md');
 const conformance = read('CONFORMANCE.md');
 const manifest = JSON.parse(read('protocol-manifest.json'));
 
-test('Candidate v0.7 manifest is internally consistent', () => {
+test('Draft v0.8 manifest is internally consistent', () => {
   assert.equal(manifest.protocol, 'MCP2');
-  assert.equal(manifest.version, '0.7.0-candidate');
-  assert.equal(manifest.status, 'candidate');
+  assert.equal(manifest.version, '0.8.0-draft');
+  assert.equal(manifest.status, 'draft');
+  assert.equal(manifest.predecessor_candidate.version, '0.7.0-candidate');
+  assert.equal(manifest.predecessor_candidate.commit, 'a85e3b81ed2bb7eb497592ec49b5f63aab2be94e');
   assert.equal(manifest.core_profile, 'MCP2-CORE');
-  assert.equal(manifest.proof_corpus.first_closed_run, 5);
-  assert.equal(manifest.proof_corpus.last_closed_run, 25);
-  assert.equal(manifest.proof_corpus.status, 'CLOSED_PASS');
-  assert.equal(manifest.clean_room_conformance.vectors, 31);
-  assert.equal(manifest.clean_room_conformance.manifest_digest_sha256, '12e890408778f425a26d696d5706ad453615e629ecf671a61acba0a84d58b8ef');
+  assert.equal(manifest.predecessor_proof_corpus.first_closed_run, 5);
+  assert.equal(manifest.predecessor_proof_corpus.last_closed_run, 25);
+  assert.equal(manifest.predecessor_proof_corpus.status, 'CLOSED_PASS');
+  assert.equal(manifest.predecessor_clean_room_conformance.vectors, 31);
+  assert.equal(manifest.request_extensions.container, 'extensions');
+  assert.equal(manifest.request_extensions.declaration_required, true);
 });
 
-test('normative documents preserve the protocol/implementation boundary', () => {
-  assert.match(spec, /Candidate v0\.7\.0/);
-  assert.match(spec, /MCPaios is not the MCP2 truth authority/);
+test('normative documents preserve protocol/implementation and v0.8 boundaries', () => {
+  assert.match(spec, /Draft v0\.8\.0/);
   assert.match(spec, /last responsible moment/);
+  assert.match(spec, /parent explicitly permits delegation/);
+  assert.match(spec, /child principal equals parent principal/);
+  assert.match(spec, /child policy digest equals parent policy digest/);
+  assert.match(spec, /extensions/);
   assert.match(spec, /MUST fail closed/);
   assert.match(profiles, /MCP2-CORE/);
   assert.match(profiles, /MCP2-PROVIDER-EPOCH/);
   assert.match(conformance, /Runs Five through Twenty-Five/);
-  assert.match(conformance, /clean-room conformance implementation/);
+  assert.match(conformance, /Draft v0\.8\.0/);
 });
 
 test('all manifest normative documents exist', () => {
