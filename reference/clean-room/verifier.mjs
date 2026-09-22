@@ -40,6 +40,16 @@ function subset(child, parent) {
   return Array.isArray(child) && Array.isArray(parent) && child.every(v => parent.includes(v));
 }
 
+function validExtensions(request, declaredExtensions = []) {
+  if (!request || !Object.prototype.hasOwnProperty.call(request, 'extensions')) return true;
+  const value = request.extensions;
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const declared = new Set(declaredExtensions);
+  return Object.keys(value).every((key) =>
+    /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/.test(key) && declared.has(key)
+  );
+}
+
 function authorityDeny(request, grant, reasons) {
   return {
     decision: 'DENY',
@@ -50,11 +60,13 @@ function authorityDeny(request, grant, reasons) {
 }
 
 export function evaluateAuthority(input = {}) {
-  const { now, request, grants = [], used_nonces = [] } = input;
+  const { now, request, grants = [], used_nonces = [], declared_extensions = [] } = input;
   const nowMs = parseTime(now);
   if (nowMs === null) return authorityDeny(request, null, ['MALFORMED_VERIFICATION_TIME']);
   const required = ['request_id','grant_id','actor','action','target','policy_digest','nonce','requested_at'];
-  if (!request || required.some(k => typeof request[k] !== 'string' || request[k].length === 0)) {
+  if (!request
+      || required.some(k => typeof request[k] !== 'string' || request[k].length === 0)
+      || !validExtensions(request, declared_extensions)) {
     return authorityDeny(request, null, ['MALFORMED_REQUEST']);
   }
   const byId = new Map(grants.map(g => [g.grant_id, g]));
@@ -88,6 +100,9 @@ export function evaluateAuthority(input = {}) {
     const cFrom = parseTime(child.valid_from);
     const cUntil = parseTime(child.valid_until);
     if (parent.status !== 'active' || pFrom === null || pUntil === null || nowMs < pFrom || nowMs >= pUntil) reasons.push('ANCESTOR_INVALID');
+    if (parent.delegation?.allowed !== true) reasons.push('ANCESTOR_INVALID');
+    if (child.principal !== parent.principal) reasons.push('ANCESTOR_INVALID');
+    if (child.policy_digest !== parent.policy_digest) reasons.push('ANCESTOR_INVALID');
     if (!subset(child.actions, parent.actions) || !subset(child.targets, parent.targets)) reasons.push('ANCESTOR_INVALID');
     if (cFrom === null || cUntil === null || pFrom === null || pUntil === null || cFrom < pFrom || cUntil > pUntil) reasons.push('ANCESTOR_INVALID');
     child = parent;
