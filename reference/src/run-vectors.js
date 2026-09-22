@@ -20,7 +20,11 @@ for (const file of walk(vectorsRoot).filter(f => f.endsWith('.json'))) {
   const s = new MemoryAuthorityStore(v.grants ?? [], v.preconsumed_nonces ?? []);
   const d = verify(v.request, s, fixedNow, {
     declaredExtensions: v.declared_extensions ?? [],
-    protocolVersion: v.protocol_version ?? '0.7.0-candidate',
+    protocolVersion: v.protocol_version ?? (
+      file.includes(`${path.sep}v0.8${path.sep}`)
+        ? (() => { throw new Error(`V08_VECTOR_PROTOCOL_VERSION_REQUIRED: ${file}`); })()
+        : '0.7.0-candidate'
+    ),
   });
   const reasonsOk = JSON.stringify(d.reasons) === JSON.stringify([...(v.expected.reasons ?? [])].sort());
   const ok = d.decision === v.expected.decision && reasonsOk;
