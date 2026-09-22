@@ -1,0 +1,82 @@
+{
+  "protocol_version": "0.8.0-draft",
+  "grants": [
+    {
+      "grant_id": "G0",
+      "principal": "human:dan",
+      "actor": "agent:root",
+      "intent_ref": "intent:root",
+      "actions": [
+        "vault.read"
+      ],
+      "targets": [
+        "urn:target:1"
+      ],
+      "policy_ref": "policy:v08",
+      "policy_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "valid_from": "2026-09-02T13:00:00Z",
+      "valid_until": "2026-09-02T14:00:00Z",
+      "status": "active",
+      "delegation": {
+        "allowed": true
+      },
+      "parent_grant_id": null
+    },
+    {
+      "grant_id": "G1",
+      "principal": "human:dan",
+      "actor": "agent:parent",
+      "intent_ref": "intent:parent",
+      "actions": [
+        "vault.read"
+      ],
+      "targets": [
+        "urn:target:1"
+      ],
+      "policy_ref": "policy:v08",
+      "policy_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "valid_from": "2026-09-02T13:05:00Z",
+      "valid_until": "2026-09-02T13:55:00Z",
+      "status": "active",
+      "delegation": {
+        "allowed": true
+      },
+      "parent_grant_id": "G0"
+    },
+    {
+      "grant_id": "G2",
+      "principal": "human:dan",
+      "actor": "agent:child",
+      "intent_ref": "intent:child",
+      "actions": [
+        "vault.read"
+      ],
+      "targets": [
+        "urn:target:1"
+      ],
+      "policy_ref": "policy:v08",
+      "policy_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "valid_from": "2026-09-02T13:10:00Z",
+      "valid_until": "2026-09-02T13:50:00Z",
+      "status": "active",
+      "delegation": {
+        "allowed": false
+      },
+      "parent_grant_id": "G1"
+    }
+  ],
+  "request": {
+    "request_id": "REQ-3HOP",
+    "grant_id": "G2",
+    "actor": "agent:child",
+    "action": "vault.read",
+    "target": "urn:target:1",
+    "policy_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "nonce": "nonce-3hop",
+    "requested_at": "2026-09-02T13:30:00Z"
+  },
+  "expected": {
+    "decision": "ALLOW",
+    "reasons": []
+  }
+}
