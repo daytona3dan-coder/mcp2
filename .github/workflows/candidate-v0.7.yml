@@ -22,6 +22,8 @@ jobs:
         run: node --test candidate/protocol-freeze.test.mjs
       - name: Run predecessor + v0.8 clean-room tests
         run: node --test reference/clean-room/test.mjs
+      - name: Run reference verifier tests
+        run: node --test reference/test/*.test.js
       - name: Run draft reference vectors
         run: node reference/src/run-vectors.js
       - name: Reconstruct frozen conformance vectors
