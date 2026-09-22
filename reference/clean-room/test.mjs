@@ -134,3 +134,40 @@ test('v0.8 undeclared extension fails closed', () => {
   assert.equal(out.decision,'DENY');
   assert.ok(out.reasons.includes('MALFORMED_REQUEST'));
 });
+
+
+test('v0.8 declared extension cannot override Core policy mismatch', () => {
+  const grant=v08Grant({grant_id:'C',actor:'agent:child'});
+  const req=v08Request({
+    policy_digest:'b'.repeat(64),
+    nonce:'v08-extension-policy',
+    extensions:{'mcpaios.example.v1':{policy_digest:'a'.repeat(64)}}
+  });
+  const out=evaluateAuthority({
+    now:v08Now,request:req,grants:[grant],protocol_version:'0.8.0-draft',
+    declared_extensions:['mcpaios.example.v1']
+  });
+  assert.equal(out.decision,'DENY');
+  assert.ok(out.reasons.includes('POLICY_DIGEST_MISMATCH'));
+});
+
+test('v0.8 undeclared top-level request context fails closed', () => {
+  const grant=v08Grant({grant_id:'C',actor:'agent:child'});
+  const req={...v08Request({nonce:'v08-top-level-extra'}),multi_model:{attempt_id:'smuggled'}};
+  const out=evaluateAuthority({
+    now:v08Now,request:req,grants:[grant],protocol_version:'0.8.0-draft'
+  });
+  assert.equal(out.decision,'DENY');
+  assert.ok(out.reasons.includes('MALFORMED_REQUEST'));
+});
+
+test('v0.8 malformed extensions container fails closed', () => {
+  const grant=v08Grant({grant_id:'C',actor:'agent:child'});
+  const req={...v08Request({nonce:'v08-bad-extension-shape'}),extensions:[]};
+  const out=evaluateAuthority({
+    now:v08Now,request:req,grants:[grant],protocol_version:'0.8.0-draft',
+    declared_extensions:['mcpaios.example.v1']
+  });
+  assert.equal(out.decision,'DENY');
+  assert.ok(out.reasons.includes('MALFORMED_REQUEST'));
+});
