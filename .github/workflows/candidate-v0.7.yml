@@ -32,3 +32,5 @@ jobs:
         run: node reference/clean-room/run-vectors.mjs
       - name: Re-bind closed proof evidence
         run: node reference/clean-room/evidence-bindings.mjs
+      - name: Verify portable reconstruction example
+        run: node examples/portable-reconstruction-v1/verify.mjs
