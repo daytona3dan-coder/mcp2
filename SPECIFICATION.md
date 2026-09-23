@@ -1,16 +1,16 @@
-# MCP2 — Machine Authority Protocol
+# MCP2 — Machine Authority & Evidence Profile
 
 **Draft v0.8.0**
 
-MCP2 defines a protocol for deciding and proving whether a machine possesses valid, bounded, unrevoked authority to perform an exact action against an exact target at an exact time.
+MCP2 defines transport-independent authority and evidence semantics for deciding and proving whether a machine possesses valid, bounded, unrevoked authority to perform an exact action against an exact target at an exact time.
 
 > **Bounded before execution. Revocable during execution. Receipted after execution. Reconstructible later.**
 
 Normative terms **MUST**, **MUST NOT**, **SHOULD**, and **MAY** are used in their conventional standards sense.
 
-## 1. Protocol boundary
+## 1. Authority/evidence boundary
 
-MCP2 is an authority protocol, not an identity provider, agent framework, transport, secret store, model runtime, MCP replacement, or policy-authoring language.
+MCP2 is an authority/evidence profile with normative protocol semantics, not an identity provider, agent framework, transport, secret store, model runtime, MCP replacement, or policy-authoring language.
 
 A conforming implementation MUST distinguish:
 
