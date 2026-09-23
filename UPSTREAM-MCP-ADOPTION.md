@@ -1,6 +1,6 @@
 # Upstream MCP Adoption Policy
 
-**Status:** Draft v0.8 architecture rule  
+**Status:** Candidate v0.8 architecture rule  
 **Scope:** MCP2 protocol evolution and MCPaios interoperability
 
 ## Principle
