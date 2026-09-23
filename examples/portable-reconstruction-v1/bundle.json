@@ -53,7 +53,7 @@
     "request_fingerprint_alg": "RFC8785-JCS+SHA-256",
     "grant_fingerprint": "ef1f537b73e320192934b24a45a18f9c1fb0517e670399f8948b3900f991cdba",
     "policy_digest": "10fa5c4e03f3e610bfeeff30e89d028be1c269c5bacf0734da5687864720b676",
-    "mcp2_version": "0.8.0-draft",
+    "mcp2_version": "0.8.0-candidate",
     "verifier": "portable-example/1"
   }
 }
