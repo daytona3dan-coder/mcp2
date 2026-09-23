@@ -26,6 +26,8 @@ jobs:
         run: node --test reference/test/*.test.js
       - name: Run draft reference vectors
         run: node reference/src/run-vectors.js
+      - name: Cross-check v0.8 vectors with independent clean-room verifier
+        run: node reference/clean-room/v08-run-vectors.mjs
       - name: Reconstruct frozen conformance vectors
         run: node reference/clean-room/run-vectors.mjs
       - name: Re-bind closed proof evidence
