@@ -27,7 +27,7 @@ test('Candidate v0.8 manifest is internally consistent', () => {
 });
 
 test('normative documents preserve protocol/implementation and v0.8 boundaries', () => {
-  assert.match(spec, /Draft v0\.8\.0/);
+  assert.match(spec, /Candidate v0\.8\.0/);
   assert.match(spec, /last responsible moment/);
   assert.match(spec, /parent explicitly permits delegation/);
   assert.match(spec, /child principal equals parent principal/);
@@ -40,7 +40,7 @@ test('normative documents preserve protocol/implementation and v0.8 boundaries',
   assert.match(profiles, /MCP2-CORE/);
   assert.match(profiles, /MCP2-PROVIDER-EPOCH/);
   assert.match(conformance, /Runs Five through Twenty-Five/);
-  assert.match(conformance, /Draft v0\.8\.0/);
+  assert.match(conformance, /Candidate v0\.8\.0/);
 });
 
 test('all manifest normative documents exist', () => {
