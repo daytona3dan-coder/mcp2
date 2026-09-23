@@ -1,5 +1,5 @@
 {
-  "protocol_version": "0.8.0-draft",
+  "protocol_version": "0.8.0-candidate",
   "grants": [
     {
       "grant_id": "G0",
