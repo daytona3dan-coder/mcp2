@@ -90,10 +90,10 @@ export function verify(
   now = new Date(),
   { declaredExtensions = [], extensionValidators = {}, protocolVersion } = {},
 ) {
-  if (!['0.7.0-candidate','0.8.0-draft'].includes(protocolVersion)) {
+  if (!['0.7.0-candidate','0.8.0-candidate'].includes(protocolVersion)) {
     throw new Error('MCP2_PROTOCOL_VERSION_REQUIRED_OR_UNSUPPORTED');
   }
-  const v08 = protocolVersion === '0.8.0-draft';
+  const v08 = protocolVersion === '0.8.0-candidate';
   const malformed = [];
   for (const k of ['request_id','grant_id','actor','action','target','policy_digest','nonce','requested_at']) {
     if (!request || typeof request[k] !== 'string' || request[k].length === 0) malformed.push('MALFORMED_REQUEST');
