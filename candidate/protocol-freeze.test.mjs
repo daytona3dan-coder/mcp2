@@ -10,10 +10,10 @@ const manifest = JSON.parse(read('protocol-manifest.json'));
 const decisionSchema = JSON.parse(read('schemas/verification-decision.schema.json'));
 const receiptSchema = JSON.parse(read('schemas/execution-receipt.schema.json'));
 
-test('Draft v0.8 manifest is internally consistent', () => {
+test('Candidate v0.8 manifest is internally consistent', () => {
   assert.equal(manifest.protocol, 'MCP2');
-  assert.equal(manifest.version, '0.8.0-draft');
-  assert.equal(manifest.status, 'draft');
+  assert.equal(manifest.version, '0.8.0-candidate');
+  assert.equal(manifest.status, 'candidate');
   assert.equal(manifest.predecessor_candidate.version, '0.7.0-candidate');
   assert.equal(manifest.predecessor_candidate.commit, 'a85e3b81ed2bb7eb497592ec49b5f63aab2be94e');
   assert.equal(manifest.core_profile, 'MCP2-CORE');
@@ -23,6 +23,7 @@ test('Draft v0.8 manifest is internally consistent', () => {
   assert.equal(manifest.predecessor_clean_room_conformance.vectors, 31);
   assert.equal(manifest.request_extensions.container, 'extensions');
   assert.equal(manifest.request_extensions.declaration_required, true);
+  assert.equal(manifest.candidate_v0_8.vector_status, 'FROZEN');
 });
 
 test('normative documents preserve protocol/implementation and v0.8 boundaries', () => {
