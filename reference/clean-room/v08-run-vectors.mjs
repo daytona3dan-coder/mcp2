@@ -11,7 +11,7 @@ let failed=0,passed=0;
 for(const file of walk(root).filter(f=>f.endsWith('.json'))){
   const v=JSON.parse(fs.readFileSync(file,'utf8'));
   const validators=Object.fromEntries(Object.entries(v.extension_contracts??{}).map(([id,c])=>[id,(body)=>c?.type==='object'?!!body&&typeof body==='object'&&!Array.isArray(body):false]));
-  const reference=verify(v.request,new MemoryAuthorityStore(v.grants??[],v.preconsumed_nonces??[]),new Date(v.now??'2026-09-02T13:30:00Z'),{protocolVersion:'0.8.0-draft',declaredExtensions:v.declared_extensions??[],extensionValidators:validators});
+  const reference=verify(v.request,new MemoryAuthorityStore(v.grants??[],v.preconsumed_nonces??[]),new Date(v.now??'2026-09-02T13:30:00Z'),{protocolVersion:'0.8.0-candidate',declaredExtensions:v.declared_extensions??[],extensionValidators:validators});
   const clean=verifyV08(v);
   const expectedReasons=[...(v.expected.reasons??[])].sort();
   const ok=reference.decision===v.expected.decision&&JSON.stringify(reference.reasons)===JSON.stringify(expectedReasons)&&clean.decision===reference.decision&&JSON.stringify(clean.reasons)===JSON.stringify(reference.reasons)&&clean.request_fingerprint===reference.request_fingerprint&&clean.request_fingerprint_alg===reference.request_fingerprint_alg;
