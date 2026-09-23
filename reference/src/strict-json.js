@@ -2,6 +2,34 @@ function syntaxError(message, index) {
   return new SyntaxError(`${message} at byte/character offset ${index}`);
 }
 
+const MAX_DEPTH = 64;
+
+function assertUnicodeScalars(value) {
+  for (let i = 0; i < value.length; i++) {
+    const code = value.charCodeAt(i);
+    if (code >= 0xd800 && code <= 0xdbff) {
+      const next = value.charCodeAt(i + 1);
+      if (!(next >= 0xdc00 && next <= 0xdfff)) throw new SyntaxError('invalid unicode scalar data');
+      i += 1;
+    } else if (code >= 0xdc00 && code <= 0xdfff) {
+      throw new SyntaxError('invalid unicode scalar data');
+    }
+  }
+}
+
+function validateMaterialized(value, depth = 0) {
+  if (depth > MAX_DEPTH) throw new SyntaxError('JSON nesting depth exceeded');
+  if (typeof value === 'string') return assertUnicodeScalars(value);
+  if (typeof value === 'number' && !Number.isFinite(value)) throw new SyntaxError('non-finite JSON number');
+  if (Array.isArray(value)) return value.forEach(v => validateMaterialized(v, depth + 1));
+  if (value && typeof value === 'object') {
+    for (const [k,v] of Object.entries(value)) {
+      assertUnicodeScalars(k);
+      validateMaterialized(v, depth + 1);
+    }
+  }
+}
+
 export function parseJsonRejectDuplicateKeys(text) {
   if (typeof text !== 'string') throw new TypeError('JSON text required');
   let i = 0;
@@ -15,10 +43,7 @@ export function parseJsonRejectDuplicateKeys(text) {
     const start = i++;
     while (i < text.length) {
       const ch = text[i++];
-      if (ch === '"') {
-        const raw = text.slice(start, i);
-        return JSON.parse(raw);
-      }
+      if (ch === '"') return JSON.parse(text.slice(start, i));
       if (ch === '\\') {
         if (i >= text.length) throw syntaxError('unterminated escape', i);
         if (text[i] === 'u') {
@@ -40,6 +65,8 @@ export function parseJsonRejectDuplicateKeys(text) {
     const rest = text.slice(i);
     const match = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/.exec(rest);
     if (!match) throw syntaxError('invalid number', i);
+    const numeric = Number(match[0]);
+    if (!Number.isFinite(numeric)) throw syntaxError('non-finite JSON number', i);
     i += match[0].length;
   }
 
@@ -48,11 +75,12 @@ export function parseJsonRejectDuplicateKeys(text) {
     i += word.length;
   }
 
-  function value() {
+  function value(depth) {
+    if (depth > MAX_DEPTH) throw syntaxError('JSON nesting depth exceeded', i);
     ws();
     const ch = text[i];
-    if (ch === '{') return object();
-    if (ch === '[') return array();
+    if (ch === '{') return object(depth + 1);
+    if (ch === '[') return array(depth + 1);
     if (ch === '"') { parseString(); return; }
     if (ch === 't') return literal('true');
     if (ch === 'f') return literal('false');
@@ -61,9 +89,8 @@ export function parseJsonRejectDuplicateKeys(text) {
     throw syntaxError('JSON value expected', i);
   }
 
-  function object() {
-    i += 1;
-    ws();
+  function object(depth) {
+    i += 1; ws();
     const keys = new Set();
     if (text[i] === '}') { i += 1; return; }
     while (true) {
@@ -73,31 +100,27 @@ export function parseJsonRejectDuplicateKeys(text) {
       keys.add(key);
       ws();
       if (text[i] !== ':') throw syntaxError('colon expected', i);
-      i += 1;
-      value();
-      ws();
+      i += 1; value(depth); ws();
       if (text[i] === '}') { i += 1; return; }
       if (text[i] !== ',') throw syntaxError('comma expected', i);
       i += 1;
     }
   }
 
-  function array() {
-    i += 1;
-    ws();
+  function array(depth) {
+    i += 1; ws();
     if (text[i] === ']') { i += 1; return; }
     while (true) {
-      value();
-      ws();
+      value(depth); ws();
       if (text[i] === ']') { i += 1; return; }
       if (text[i] !== ',') throw syntaxError('comma expected', i);
       i += 1;
     }
   }
 
-  ws();
-  value();
-  ws();
+  ws(); value(0); ws();
   if (i !== text.length) throw syntaxError('trailing data', i);
-  return JSON.parse(text);
+  const parsed = JSON.parse(text);
+  validateMaterialized(parsed);
+  return parsed;
 }
