@@ -6,7 +6,7 @@ const read = (p) => fs.readFileSync(new URL(`../${p}`, import.meta.url), 'utf8')
 const spec = read('SPECIFICATION.md');
 const profiles = read('PROFILES.md');
 const conformance = read('CONFORMANCE.md');
-const manifest = JSON.parse(read('protocol-manifest.json'));
+const manifest = JSON.parse(read('protocol-manifest.json'));\nconst decisionSchema = JSON.parse(read('schemas/verification-decision.schema.json'));\nconst receiptSchema = JSON.parse(read('schemas/execution-receipt.schema.json'));
 
 test('Draft v0.8 manifest is internally consistent', () => {
   assert.equal(manifest.protocol, 'MCP2');
@@ -42,4 +42,13 @@ test('normative documents preserve protocol/implementation and v0.8 boundaries',
 
 test('all manifest normative documents exist', () => {
   for (const p of manifest.normative_documents) assert.ok(fs.existsSync(new URL(`../${p}`, import.meta.url)), p);
+});
+
+
+test('v0.8 receipt schemas label request fingerprints and allow explicit non-canonicalizable evidence', () => {
+  for (const schema of [decisionSchema, receiptSchema]) {
+    assert.ok(schema.required.includes('request_fingerprint_alg'));
+    assert.deepEqual(schema.properties.request_fingerprint.type, ['string','null']);
+    assert.deepEqual(schema.properties.request_fingerprint_alg.enum, ['RFC8785-JCS+SHA-256','NONCANONICALIZABLE']);
+  }
 });
