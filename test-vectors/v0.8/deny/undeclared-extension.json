@@ -46,7 +46,7 @@
       "MALFORMED_REQUEST"
     ]
   },
-  "protocol_version": "0.8.0-draft",
+  "protocol_version": "0.8.0-candidate",
   "extension_contracts": {
     "mcpaios.example.v1": {
       "type": "object"
