@@ -95,10 +95,10 @@ export function evaluateAuthority(input = {}) {
     declared_extensions = [],
     protocol_version,
   } = input;
-  if (!['0.7.0-candidate','0.8.0-draft'].includes(protocol_version)) {
+  if (!['0.7.0-candidate','0.8.0-candidate'].includes(protocol_version)) {
     throw new Error('MCP2_PROTOCOL_VERSION_REQUIRED_OR_UNSUPPORTED');
   }
-  const v08 = protocol_version === '0.8.0-draft';
+  const v08 = protocol_version === '0.8.0-candidate';
   const nowMs = parseTime(now);
   if (nowMs === null) return authorityDeny(request, null, ['MALFORMED_VERIFICATION_TIME']);
   const required = ['request_id','grant_id','actor','action','target','policy_digest','nonce','requested_at'];
