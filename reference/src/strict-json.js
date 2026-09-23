@@ -96,7 +96,7 @@ export function parseJsonRejectDuplicateKeys(text) {
     while (true) {
       ws();
       const key = parseString();
-      if (keys.has(key)) throw syntaxError(`duplicate object member ${JSON.stringify(key)}`, i);
+      if (keys.has(key)) throw syntaxError(`duplicate JSON member: ${key}`, i);
       keys.add(key);
       ws();
       if (text[i] !== ':') throw syntaxError('colon expected', i);
