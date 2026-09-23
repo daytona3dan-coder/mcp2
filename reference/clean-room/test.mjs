@@ -76,7 +76,7 @@ test('v0.8 child with bounded equal-policy delegation allows', () => {
     valid_from:'2026-09-22T20:30:00Z', valid_until:'2026-09-22T21:30:00Z'
   });
   assert.equal(evaluateAuthority({
-    now:v08Now, request:v08Request(), grants:[parent,child], protocol_version:'0.8.0-draft'
+    now:v08Now, request:v08Request(), grants:[parent,child], protocol_version:'0.8.0-candidate'
   }).decision, 'ALLOW');
 });
 
@@ -95,7 +95,7 @@ for (const [name, mutate] of [
     const req=v08Request();
     mutate(parent,child,req);
     const out=evaluateAuthority({
-      now:v08Now, request:req, grants:[parent,child], protocol_version:'0.8.0-draft'
+      now:v08Now, request:req, grants:[parent,child], protocol_version:'0.8.0-candidate'
     });
     assert.equal(out.decision,'DENY');
     assert.ok(out.reasons.includes('ANCESTOR_INVALID'));
@@ -105,7 +105,7 @@ for (const [name, mutate] of [
 test('v0.8 superseded referenced grant is not executable', () => {
   const grant=v08Grant({grant_id:'C',actor:'agent:child',status:'superseded'});
   const out=evaluateAuthority({
-    now:v08Now,request:v08Request(),grants:[grant],protocol_version:'0.8.0-draft'
+    now:v08Now,request:v08Request(),grants:[grant],protocol_version:'0.8.0-candidate'
   });
   assert.equal(out.decision,'DENY');
   assert.ok(out.reasons.includes('GRANT_NOT_ACTIVE'));
@@ -118,7 +118,7 @@ test('v0.8 declared extensions are fingerprint-bound but cannot override Core de
     extensions:{'mcpaios.example.v1':{actor:'agent:child'}}
   });
   const out=evaluateAuthority({
-    now:v08Now,request:req,grants:[grant],protocol_version:'0.8.0-draft',
+    now:v08Now,request:req,grants:[grant],protocol_version:'0.8.0-candidate',
     declared_extensions:['mcpaios.example.v1']
   });
   assert.equal(out.decision,'DENY');
@@ -129,7 +129,7 @@ test('v0.8 undeclared extension fails closed', () => {
   const grant=v08Grant({grant_id:'C',actor:'agent:child'});
   const req=v08Request({extensions:{'mcpaios.unknown.v1':{value:true}}});
   const out=evaluateAuthority({
-    now:v08Now,request:req,grants:[grant],protocol_version:'0.8.0-draft',
+    now:v08Now,request:req,grants:[grant],protocol_version:'0.8.0-candidate',
     declared_extensions:['mcpaios.example.v1']
   });
   assert.equal(out.decision,'DENY');
@@ -145,7 +145,7 @@ test('v0.8 declared extension cannot override Core policy mismatch', () => {
     extensions:{'mcpaios.example.v1':{policy_digest:'a'.repeat(64)}}
   });
   const out=evaluateAuthority({
-    now:v08Now,request:req,grants:[grant],protocol_version:'0.8.0-draft',
+    now:v08Now,request:req,grants:[grant],protocol_version:'0.8.0-candidate',
     declared_extensions:['mcpaios.example.v1']
   });
   assert.equal(out.decision,'DENY');
@@ -156,7 +156,7 @@ test('v0.8 undeclared top-level request context fails closed', () => {
   const grant=v08Grant({grant_id:'C',actor:'agent:child'});
   const req={...v08Request({nonce:'v08-top-level-extra'}),multi_model:{attempt_id:'smuggled'}};
   const out=evaluateAuthority({
-    now:v08Now,request:req,grants:[grant],protocol_version:'0.8.0-draft'
+    now:v08Now,request:req,grants:[grant],protocol_version:'0.8.0-candidate'
   });
   assert.equal(out.decision,'DENY');
   assert.ok(out.reasons.includes('MALFORMED_REQUEST'));
@@ -166,7 +166,7 @@ test('v0.8 malformed extensions container fails closed', () => {
   const grant=v08Grant({grant_id:'C',actor:'agent:child'});
   const req={...v08Request({nonce:'v08-bad-extension-shape'}),extensions:[]};
   const out=evaluateAuthority({
-    now:v08Now,request:req,grants:[grant],protocol_version:'0.8.0-draft',
+    now:v08Now,request:req,grants:[grant],protocol_version:'0.8.0-candidate',
     declared_extensions:['mcpaios.example.v1']
   });
   assert.equal(out.decision,'DENY');
