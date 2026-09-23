@@ -1,0 +1,59 @@
+{
+  "protocol": "mcp2-portable-reconstruction/1",
+  "verifier_time": "2026-09-23T20:00:00Z",
+  "request": {
+    "request_id": "REQ-PORTABLE-001",
+    "grant_id": "AG-PORTABLE-001",
+    "actor": "agent:portable-demo",
+    "action": "records.read",
+    "target": "urn:mcp2:portable:record-001",
+    "policy_digest": "10fa5c4e03f3e610bfeeff30e89d028be1c269c5bacf0734da5687864720b676",
+    "nonce": "nonce-portable-001",
+    "requested_at": "2026-09-23T20:00:00Z"
+  },
+  "grants": [
+    {
+      "grant_id": "AG-PORTABLE-001",
+      "principal": "human:portable-owner",
+      "actor": "agent:portable-demo",
+      "intent_ref": "intent:portable-reconstruction-demo",
+      "actions": [
+        "records.read"
+      ],
+      "targets": [
+        "urn:mcp2:portable:record-001"
+      ],
+      "policy_ref": "policy:portable-demo",
+      "policy_digest": "10fa5c4e03f3e610bfeeff30e89d028be1c269c5bacf0734da5687864720b676",
+      "valid_from": "2026-09-23T19:00:00Z",
+      "valid_until": "2026-09-23T21:00:00Z",
+      "status": "active",
+      "delegation": {
+        "allowed": false
+      },
+      "parent_grant_id": null
+    }
+  ],
+  "policy": {
+    "policy_ref": "policy:portable-demo",
+    "version": "1",
+    "rules": {
+      "records.read": [
+        "urn:mcp2:portable:record-001"
+      ]
+    }
+  },
+  "receipt": {
+    "decision": "ALLOW",
+    "reasons": [],
+    "request_id": "REQ-PORTABLE-001",
+    "grant_id": "AG-PORTABLE-001",
+    "verified_at": "2026-09-23T20:00:00Z",
+    "request_fingerprint": "116ecf8fc3fec1e4aeec89e069d8e249a0298860808a1de6247b53599fe93959",
+    "request_fingerprint_alg": "RFC8785-JCS+SHA-256",
+    "grant_fingerprint": "ef1f537b73e320192934b24a45a18f9c1fb0517e670399f8948b3900f991cdba",
+    "policy_digest": "10fa5c4e03f3e610bfeeff30e89d028be1c269c5bacf0734da5687864720b676",
+    "mcp2_version": "0.8.0-draft",
+    "verifier": "portable-example/1"
+  }
+}
