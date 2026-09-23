@@ -1,4 +1,4 @@
-# MCP2 Draft v0.8.0 — Conformance
+# MCP2 Candidate v0.8.0 — Conformance
 
 ## Conformance claim
 
@@ -79,10 +79,10 @@ A conformance test MUST fail when a required input cannot be validated. Missing 
 
 Runs Five through Twenty-Five remain the closed executed proof corpus underlying Candidate v0.7.0 and the historical baseline for this draft.
 
-Those proof records MUST NOT be edited to retrofit v0.8 language. Draft v0.8 semantics require new versioned tests/vectors and new qualification evidence.
+Those proof records MUST NOT be edited to retrofit v0.8 language. Candidate v0.8 semantics require new versioned tests/vectors and new qualification evidence.
 
 ## Draft status
 
-Draft v0.8.0 is development work, not a frozen Candidate and not a claim that every implementation or integration is production-certified.
+Candidate v0.8.0 is development work, not a frozen Candidate and not a claim that every implementation or integration is production-certified.
 
 An implementation SHOULD report exactly which protocol version, profiles, extensions, and vectors it has passed rather than using an unqualified "MCP2 compliant" label.
