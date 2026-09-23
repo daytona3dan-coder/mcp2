@@ -1,6 +1,6 @@
 # MCP2 — Machine Authority & Evidence Profile
 
-**Status:** Draft v0.8.0 development on this branch; Candidate v0.7.0 remains the last frozen release on main  
+**Status:** Candidate v0.8.0 development on this branch; Candidate v0.7.0 remains the last frozen release on main  
 **Purpose:** Define and verify bounded, revocable, receipted machine authority while remaining transport- and MCP-stack-independent.
 
 MCP2 answers one question:
@@ -45,7 +45,7 @@ An optional profile must not weaken an `MCP2-CORE` denial.
 
 - `CHARTER.md` — category and non-goals
 - `THREAT_MODEL.md` — trust boundaries and attacker model
-- `SPECIFICATION.md` — Draft v0.8.0 normative semantics on this branch
+- `SPECIFICATION.md` — Candidate v0.8.0 normative semantics on this branch
 - `PROFILES.md` — conformance profiles
 - `CONFORMANCE.md` — conformance requirements
 - `KNOWN-LIMITATIONS-V0.7.md` — published v0.7 historical limitations without rewriting closed evidence
