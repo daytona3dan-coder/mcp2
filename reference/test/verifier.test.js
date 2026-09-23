@@ -139,7 +139,7 @@ test('denies child when parent delegation is disabled', () => {
   const s = new MemoryAuthorityStore([parent, child]);
   const d = verify(
     request({grant_id:'AG-CHILD', actor:'agent:child', nonce:'child-delegation-off'}),
-    s, NOW, {protocolVersion:'0.8.0-draft'},
+    s, NOW, {protocolVersion:'0.8.0-candidate'},
   );
   assert.equal(d.decision, 'DENY');
   assert.ok(d.reasons.includes('ANCESTOR_INVALID'));
@@ -154,7 +154,7 @@ test('denies child whose principal differs from parent', () => {
   const s = new MemoryAuthorityStore([parent, child]);
   const d = verify(
     request({grant_id:'AG-CHILD', actor:'agent:child', nonce:'child-principal'}),
-    s, NOW, {protocolVersion:'0.8.0-draft'},
+    s, NOW, {protocolVersion:'0.8.0-candidate'},
   );
   assert.equal(d.decision, 'DENY');
   assert.ok(d.reasons.includes('ANCESTOR_INVALID'));
@@ -170,14 +170,14 @@ test('denies child whose policy digest differs from parent', () => {
   const s = new MemoryAuthorityStore([parent, child]);
   const d = verify(request({
     grant_id:'AG-CHILD', actor:'agent:child', policy_digest:childPolicy, nonce:'child-policy'
-  }), s, NOW, {protocolVersion:'0.8.0-draft'});
+  }), s, NOW, {protocolVersion:'0.8.0-candidate'});
   assert.equal(d.decision, 'DENY');
   assert.ok(d.reasons.includes('ANCESTOR_INVALID'));
 });
 
 test('denies superseded grant', () => {
   const s = new MemoryAuthorityStore([grant({status:'superseded'})]);
-  const d = verify(request({nonce:'superseded'}), s, NOW, {protocolVersion:'0.8.0-draft'});
+  const d = verify(request({nonce:'superseded'}), s, NOW, {protocolVersion:'0.8.0-candidate'});
   assert.equal(d.decision, 'DENY');
   assert.ok(d.reasons.includes('GRANT_NOT_ACTIVE'));
 });
@@ -189,7 +189,7 @@ test('declared extension context is bound but cannot override actor mismatch', (
     nonce:'extension-actor',
     extensions:{'mcpaios.example.v1':{actor:'agent:alpha', note:'context only'}}
   }), s, NOW, {
-    protocolVersion:'0.8.0-draft',
+    protocolVersion:'0.8.0-candidate',
     declaredExtensions:['mcpaios.example.v1'],
     extensionValidators:EXAMPLE_VALIDATORS,
   });
@@ -203,7 +203,7 @@ test('undeclared extension is malformed and cannot reach ALLOW', () => {
     nonce:'extension-undeclared',
     extensions:{'mcpaios.unknown.v1':{value:true}}
   }), s, NOW, {
-    protocolVersion:'0.8.0-draft',
+    protocolVersion:'0.8.0-candidate',
     declaredExtensions:['mcpaios.example.v1'],
     extensionValidators:EXAMPLE_VALIDATORS,
   });
@@ -219,7 +219,7 @@ test('declared extension cannot override policy mismatch', () => {
     nonce:'extension-policy',
     extensions:{'mcpaios.example.v1':{policy_digest:'a'.repeat(64)}}
   }), s, NOW, {
-    protocolVersion:'0.8.0-draft',
+    protocolVersion:'0.8.0-candidate',
     declaredExtensions:['mcpaios.example.v1'],
     extensionValidators:EXAMPLE_VALIDATORS,
   });
@@ -232,7 +232,7 @@ test('v0.8 rejects undeclared top-level request fields', () => {
   const d = verify({
     ...request({nonce:'top-level-extra'}),
     multi_model:{attempt_id:'caller-smuggled'}
-  }, s, NOW, {protocolVersion:'0.8.0-draft'});
+  }, s, NOW, {protocolVersion:'0.8.0-candidate'});
   assert.equal(d.decision, 'DENY');
   assert.ok(d.reasons.includes('MALFORMED_REQUEST'));
 });
@@ -243,7 +243,7 @@ test('v0.8 rejects malformed extension container shape', () => {
     ...request({nonce:'bad-extensions'}),
     extensions:[]
   }, s, NOW, {
-    protocolVersion:'0.8.0-draft',
+    protocolVersion:'0.8.0-candidate',
     declaredExtensions:['mcpaios.example.v1'],
     extensionValidators:EXAMPLE_VALIDATORS,
   });
@@ -278,7 +278,7 @@ test('v0.8 validity uses verifier time, not caller requested_at', () => {
     request({ nonce:'verifier-time', requested_at:'1999-01-01T00:00:00Z' }),
     s,
     NOW,
-    { protocolVersion:'0.8.0-draft' },
+    { protocolVersion:'0.8.0-candidate' },
   );
   assert.equal(d.decision, 'ALLOW');
 });
@@ -286,14 +286,14 @@ test('v0.8 validity uses verifier time, not caller requested_at', () => {
 
 test('v0.8 rejects malformed requested_at evidence', () => {
   const s = new MemoryAuthorityStore([grant()]);
-  const d = verify(request({ nonce:'bad-time', requested_at:'not-a-time' }), s, NOW, { protocolVersion:'0.8.0-draft' });
+  const d = verify(request({ nonce:'bad-time', requested_at:'not-a-time' }), s, NOW, { protocolVersion:'0.8.0-candidate' });
   assert.equal(d.decision, 'DENY');
   assert.ok(d.reasons.includes('MALFORMED_REQUEST'));
 });
 
 test('v0.8 rejects uppercase policy digest rather than normalizing it', () => {
   const s = new MemoryAuthorityStore([grant()]);
-  const d = verify(request({ nonce:'upper-policy', policy_digest:POLICY.toUpperCase() }), s, NOW, { protocolVersion:'0.8.0-draft' });
+  const d = verify(request({ nonce:'upper-policy', policy_digest:POLICY.toUpperCase() }), s, NOW, { protocolVersion:'0.8.0-candidate' });
   assert.equal(d.decision, 'DENY');
   assert.ok(d.reasons.includes('MALFORMED_REQUEST'));
 });
@@ -303,7 +303,7 @@ test('v0.8 declared extension requires a bound validator', () => {
   const d = verify(request({
     nonce:'missing-validator',
     extensions:{'mcpaios.example.v1':{note:'context'}}
-  }), s, NOW, { protocolVersion:'0.8.0-draft', declaredExtensions:['mcpaios.example.v1'] });
+  }), s, NOW, { protocolVersion:'0.8.0-candidate', declaredExtensions:['mcpaios.example.v1'] });
   assert.equal(d.decision, 'DENY');
   assert.ok(d.reasons.includes('MALFORMED_REQUEST'));
 });
@@ -312,7 +312,7 @@ test('v0.8 noncanonicalizable request does not consume nonce', () => {
   const s = new MemoryAuthorityStore([grant()]);
   const bad = request({ nonce:'unicode-nonce', extensions:{'mcpaios.example.v1':{note:'\ud800'}} });
   const d = verify(bad, s, NOW, {
-    protocolVersion:'0.8.0-draft',
+    protocolVersion:'0.8.0-candidate',
     declaredExtensions:['mcpaios.example.v1'],
     extensionValidators:EXAMPLE_VALIDATORS,
   });
