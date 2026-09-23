@@ -1,8 +1,8 @@
 {
   "protocol": "MCP2",
   "name": "Machine Authority Protocol",
-  "version": "0.8.0-draft",
-  "status": "draft",
+  "version": "0.8.0-candidate",
+  "status": "candidate",
   "predecessor_candidate": {
     "version": "0.7.0-candidate",
     "commit": "a85e3b81ed2bb7eb497592ec49b5f63aab2be94e"
@@ -43,8 +43,18 @@
     "manifest_digest_sha256": "12e890408778f425a26d696d5706ad453615e629ecf671a61acba0a84d58b8ef",
     "run": 25
   },
-  "draft_v0_8": {
-    "vector_status": "IN_DEVELOPMENT",
+  "implementation_independence_rule": "MCPaios is an implementation of MCP2 and is not the MCP2 truth authority.",
+  "canonical_request_fingerprint": {
+    "canonicalization": "RFC8785-JCS",
+    "encoding": "UTF-8",
+    "digest": "SHA-256",
+    "duplicate_object_members": "reject-at-parser-ingress"
+  },
+  "historical_notes": [
+    "candidate/V0_7_KNOWN_LIMITATIONS.md"
+  ],
+  "candidate_v0_8": {
+    "vector_status": "FROZEN",
     "new_rules": [
       "delegation_permission",
       "delegated_principal_equality",
@@ -57,15 +67,5 @@
       "duplicate_json_member_rejection",
       "multi_hop_delegation"
     ]
-  },
-  "implementation_independence_rule": "MCPaios is an implementation of MCP2 and is not the MCP2 truth authority.",
-  "canonical_request_fingerprint": {
-    "canonicalization": "RFC8785-JCS",
-    "encoding": "UTF-8",
-    "digest": "SHA-256",
-    "duplicate_object_members": "reject-at-parser-ingress"
-  },
-  "historical_notes": [
-    "candidate/V0_7_KNOWN_LIMITATIONS.md"
-  ]
+  }
 }
