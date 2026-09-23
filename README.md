@@ -1,13 +1,13 @@
-# MCP2 — Machine Authority Protocol
+# MCP2 — Machine Authority & Evidence Profile
 
 **Status:** Draft v0.8.0 development on this branch; Candidate v0.7.0 remains the last frozen release on main  
-**Purpose:** Define and verify bounded, revocable, receipted machine authority.
+**Purpose:** Define and verify bounded, revocable, receipted machine authority while remaining transport- and MCP-stack-independent.
 
 MCP2 answers one question:
 
 > Does this machine possess valid, bounded, unrevoked authority to perform this exact action against this exact target now—and can that decision later be proven?
 
-MCP2 is **not** MCP v2, an MCP replacement, an identity provider, or an agent orchestrator.
+MCP2 is **not** MCP v2, an MCP replacement, an identity provider, or an agent orchestrator. It is an authority/evidence profile with normative protocol semantics that can be carried over MCP or other execution substrates.
 
 ## Boundary
 
