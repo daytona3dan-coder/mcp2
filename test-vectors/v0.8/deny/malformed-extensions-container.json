@@ -42,5 +42,10 @@
     "reasons": [
       "MALFORMED_REQUEST"
     ]
+  },
+  "extension_contracts": {
+    "mcpaios.example.v1": {
+      "type": "object"
+    }
   }
 }
