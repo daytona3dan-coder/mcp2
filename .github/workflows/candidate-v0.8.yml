@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 jobs:
-  candidate-v0-8:
+  draft-v0-8:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
