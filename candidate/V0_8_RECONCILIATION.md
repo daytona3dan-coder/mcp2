@@ -1,6 +1,6 @@
 # MCP2 v0.8 Reconciliation Work Item
 
-**Status:** AUTHORIZED DEVELOPMENT / DRAFT — not yet a protocol ratification  
+**Status:** CLOSED / CANDIDATE v0.8.0 FROZEN  
 **Opened:** 2026-09-22  
 **Base:** MCP2 main `53449d56eb98b3e4e87d94bddfd9ad7a99366d69`  
 **Frozen predecessor:** Candidate v0.7.0 at `a85e3b81ed2bb7eb497592ec49b5f63aab2be94e`
@@ -137,7 +137,7 @@ The existing MCP2 Roadmap "Spec Kit bridge" item should be interpreted as an art
 
 ## Required v0.8 conformance additions
 
-Before v0.8 can move from draft to Candidate, add deterministic public vectors for at least:
+Candidate v0.8.0 freeze required deterministic public vectors for at least:
 
 1. parent delegation disabled → child invalid / verification DENY;
 2. child principal differs from parent → child invalid / verification DENY;
@@ -166,7 +166,7 @@ At minimum inspect:
 - reconstruction output;
 - regression and database qualification.
 
-No MCPaios production migration or live credential/grant change is authorized merely by this protocol draft.
+No MCPaios production migration or live credential/grant change is authorized merely by this protocol Candidate.
 
 ## PayMAXAIOS dependency boundary
 
@@ -188,3 +188,8 @@ This reconciliation is ready to advance only when:
 - closed historical proof records remain untouched;
 - proposal-stage external MCP work is not represented as settled dependency;
 - a new exact-head review package is produced before Candidate freeze.
+
+
+## Closure
+
+Candidate v0.8.0 was frozen at `dc890456594e7d8f8eda92c4fa590800a8636942` after exact-head qualification passed. See `candidate/V0_8_CANDIDATE_FREEZE.md`.
