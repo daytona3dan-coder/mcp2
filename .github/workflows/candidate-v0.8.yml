@@ -1,0 +1,36 @@
+name: MCP2 Candidate v0.8 qualification
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches:
+      - candidate/v0.8-reconciliation
+
+permissions:
+  contents: read
+
+jobs:
+  candidate-v0-8:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Validate Candidate v0.8 manifest and boundaries
+        run: node --test candidate/protocol-freeze.test.mjs
+      - name: Run predecessor + Candidate v0.8 clean-room tests
+        run: node --test reference/clean-room/test.mjs
+      - name: Run reference verifier tests
+        run: node --test reference/test/*.test.js
+      - name: Run Candidate reference vectors
+        run: node reference/src/run-vectors.js
+      - name: Cross-check v0.8 vectors with independent clean-room verifier
+        run: node reference/clean-room/v08-run-vectors.mjs
+      - name: Reconstruct frozen predecessor conformance vectors
+        run: node reference/clean-room/run-vectors.mjs
+      - name: Re-bind closed predecessor proof evidence
+        run: node reference/clean-room/evidence-bindings.mjs
+      - name: Verify portable reconstruction example
+        run: node examples/portable-reconstruction-v1/verify.mjs
