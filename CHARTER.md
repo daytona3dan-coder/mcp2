@@ -1,4 +1,4 @@
-# MCP2 Charter — Draft v0.8.0
+# MCP2 Charter — Candidate v0.8.0
 
 ## Category
 
