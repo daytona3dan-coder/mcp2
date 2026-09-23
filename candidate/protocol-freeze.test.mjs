@@ -6,7 +6,9 @@ const read = (p) => fs.readFileSync(new URL(`../${p}`, import.meta.url), 'utf8')
 const spec = read('SPECIFICATION.md');
 const profiles = read('PROFILES.md');
 const conformance = read('CONFORMANCE.md');
-const manifest = JSON.parse(read('protocol-manifest.json'));\nconst decisionSchema = JSON.parse(read('schemas/verification-decision.schema.json'));\nconst receiptSchema = JSON.parse(read('schemas/execution-receipt.schema.json'));
+const manifest = JSON.parse(read('protocol-manifest.json'));
+const decisionSchema = JSON.parse(read('schemas/verification-decision.schema.json'));
+const receiptSchema = JSON.parse(read('schemas/execution-receipt.schema.json'));
 
 test('Draft v0.8 manifest is internally consistent', () => {
   assert.equal(manifest.protocol, 'MCP2');
