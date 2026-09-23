@@ -1,6 +1,6 @@
 # MCP2 — Machine Authority & Evidence Profile
 
-**Draft v0.8.0**
+**Candidate v0.8.0**
 
 MCP2 defines transport-independent authority and evidence semantics for deciding and proving whether a machine possesses valid, bounded, unrevoked authority to perform an exact action against an exact target at an exact time.
 
@@ -195,7 +195,7 @@ A `DENY` MUST prevent the protected operation from executing.
 
 ## 12. Canonical request encoding and fingerprints
 
-For Draft v0.8, a portable request fingerprint MUST be computed from the complete accepted verification request using RFC 8785 JSON Canonicalization Scheme (JCS), UTF-8 encoded, then SHA-256 hashed. A receipt carrying such a fingerprint MUST identify the algorithm as `RFC8785-JCS+SHA-256`.
+For Candidate v0.8, a portable request fingerprint MUST be computed from the complete accepted verification request using RFC 8785 JSON Canonicalization Scheme (JCS), UTF-8 encoded, then SHA-256 hashed. A receipt carrying such a fingerprint MUST identify the algorithm as `RFC8785-JCS+SHA-256`.
 
 Canonicalizability MUST be established before replay state is mutated. If a request cannot be canonicalized, verification MUST fail closed as `DENY / MALFORMED_REQUEST` (or be rejected at parser/transport ingress before authority evaluation) and MUST NOT consume the nonce.
 
@@ -335,7 +335,7 @@ The MCP2 request-extension mechanism is independent of the Model Context Protoco
 
 ## 22. Non-claims
 
-Draft v0.8.0 does not claim:
+Candidate v0.8.0 does not claim:
 
 - global Byzantine consensus;
 - protection against every colluding majority;
