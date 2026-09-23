@@ -16,13 +16,13 @@ In particular:
 - the v0.7 normative specification and public reference/clean-room verifier primarily enforced ancestor state plus action/target/time attenuation;
 - therefore a generic v0.7 conformance claim must not be interpreted as proof that every implementation enforced the stronger Run Eleven delegation invariants.
 
-Draft v0.8 makes those invariants explicit and adds new versioned conformance vectors. The v0.7 corpus remains historical evidence of exactly what it demonstrated at the time.
+Candidate v0.8 makes those invariants explicit and adds new versioned conformance vectors. The v0.7 corpus remains historical evidence of exactly what it demonstrated at the time.
 
 ## Implementation-defined request context
 
 Some MCPaios v0.7 product integrations carried additional request context outside the closed public v0.7 verification-request schema. Those product extensions were not part of the public MCP2 v0.7 Core conformance claim.
 
-Draft v0.8 introduces a declared `extensions` container to remove this ambiguity.
+Candidate v0.8 introduces a declared `extensions` container to remove this ambiguity.
 
 ## Evidence claim boundary
 
