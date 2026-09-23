@@ -82,7 +82,9 @@ A verification request MUST bind at least:
 
 The request describes the attempted execution. It does not create authority.
 
-`requested_at` is caller-supplied request evidence. Current authority validity MUST be evaluated against verifier time at the execution fence; `requested_at` MUST NOT substitute for verifier time.
+`requested_at` is caller-supplied request evidence. In v0.8 it MUST be a valid RFC 3339 Internet timestamp with an explicit `Z` or numeric UTC offset. Current authority validity MUST be evaluated against verifier time at the execution fence; `requested_at` MUST NOT substitute for verifier time.
+
+In v0.8, `policy_digest` MUST be a lowercase 64-character hexadecimal SHA-256 digest. Implementations MUST reject, not normalize, uppercase or otherwise non-canonical digest text in a verification request.
 
 A v0.8 verifier MUST reject undeclared top-level request fields rather than interpreting them as protocol-version selectors.
 
@@ -97,7 +99,7 @@ A conforming `MCP2-CORE` verifier MUST, at the last responsible moment before pr
 3. deny if the grant is unknown;
 4. deny unless the grant is currently active;
 5. enforce `valid_from <= verification_time < valid_until`;
-6. exact-match the actor;
+6. exact-match the actor against the canonical grant named by `request.grant_id`; ancestor grant actors are not compared to the request actor;
 7. require the action to be authorized;
 8. require the target to be authorized;
 9. exact-match the governing policy digest;
@@ -106,7 +108,6 @@ A conforming `MCP2-CORE` verifier MUST, at the last responsible moment before pr
 12. for every immediate child/parent pair in the chain, require:
     - the parent explicitly permits delegation;
     - child principal equals parent principal;
-    - the request actor exact-matches the referenced child grant actor;
     - child actions are a subset of parent actions;
     - child targets are a subset of parent targets;
     - child validity is fully contained by parent validity;
@@ -194,7 +195,11 @@ A `DENY` MUST prevent the protected operation from executing.
 
 ## 12. Canonical request encoding and fingerprints
 
-For Draft v0.8, a portable request fingerprint MUST be computed from the complete accepted verification request using RFC 8785 JSON Canonicalization Scheme (JCS), UTF-8 encoded, then SHA-256 hashed.
+For Draft v0.8, a portable request fingerprint MUST be computed from the complete accepted verification request using RFC 8785 JSON Canonicalization Scheme (JCS), UTF-8 encoded, then SHA-256 hashed. A receipt carrying such a fingerprint MUST identify the algorithm as `RFC8785-JCS+SHA-256`.
+
+Canonicalizability MUST be established before replay state is mutated. If a request cannot be canonicalized, verification MUST fail closed as `DENY / MALFORMED_REQUEST` (or be rejected at parser/transport ingress before authority evaluation) and MUST NOT consume the nonce.
+
+For a malformed request that is parsed but cannot be represented by the canonical request encoding, a receipt MUST NOT silently substitute another request-fingerprint algorithm. The canonical `request_fingerprint` MAY be null. If the implementation retains a digest of the original received bytes for rejection evidence, that digest MUST be separately named and algorithm-labeled (for example `raw_request_digest_alg = SHA-256`); it is not the canonical request fingerprint.
 
 Transport/parser ingress MUST reject JSON objects containing duplicate member names before they are converted to a map/object representation. This applies at every object level, including the top-level request and `extensions` members.
 
@@ -210,7 +215,8 @@ A conforming implementation MUST emit or durably bind a decision receipt suffici
 
 - decision;
 - reason codes;
-- request identity or fingerprint;
+- request identity and, when available, canonical request fingerprint;
+- `request_fingerprint_alg` identifying the exact canonical request fingerprint algorithm, or an explicit non-canonicalizable marker when no canonical fingerprint exists;
 - canonical grant identity or fingerprint;
 - policy digest;
 - verification time;
@@ -303,7 +309,7 @@ A conforming implementation that accepts request extensions MUST:
 - publish the accepted extension identifiers and versions in its protocol/conformance declaration;
 - use stable namespaced extension identifiers; reverse-DNS style identifiers or an equivalently collision-resistant registered prefix are RECOMMENDED;
 - publish any supported or forbidden extension combinations and any size/depth limits;
-- validate each extension independently against its declared schema before protected execution;
+- validate each extension independently against a trusted, versioned validator/schema bound to that declared extension identifier before protected execution; a missing, unavailable, throwing, or rejecting validator MUST fail closed;
 - require extension schemas to reject undeclared members unless that extension specification explicitly defines an open sub-object;
 - bind accepted extension material into the same canonical request fingerprint/evidence used for the authority decision;
 - evaluate multiple extensions monotonically and order-independently when composition is supported: every extension must validate, and any extension-specific denial wins;
