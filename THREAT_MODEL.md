@@ -1,4 +1,4 @@
-# MCP2 Threat Model — Draft v0.8.0
+# MCP2 Threat Model — Candidate v0.8.0
 
 ## Protected property
 
