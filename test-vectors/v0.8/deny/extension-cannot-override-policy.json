@@ -46,5 +46,10 @@
     "reasons": [
       "POLICY_DIGEST_MISMATCH"
     ]
+  },
+  "extension_contracts": {
+    "mcpaios.example.v1": {
+      "type": "object"
+    }
   }
 }
