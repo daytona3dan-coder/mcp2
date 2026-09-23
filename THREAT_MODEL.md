@@ -1,4 +1,4 @@
-# MCP2 Threat Model — Candidate v0.6.0
+# MCP2 Threat Model — Candidate v0.8.0
 
 ## Protected property
 
@@ -43,9 +43,9 @@ Authority is verified once during planning and revoked before execution.
 **Control:** verify at the execution fence immediately before protected action.
 
 ### Delegation escape
-Child grant exceeds parent scope or survives parent revocation/expiry.
+Child grant exceeds parent scope, changes the governing principal/policy, delegates from a parent that did not permit delegation, or survives parent revocation/expiry/supersession.
 
-**Control:** validate complete ancestry; any invalid ancestor denies descendant.
+**Control:** validate complete ancestry; require explicit parent delegation permission, principal equality, policy-digest equality, action/target/time narrowing, and current active ancestors. Any invalid ancestor denies the descendant.
 
 ### Policy drift
 Grant references one policy while execution uses another.
@@ -56,6 +56,16 @@ Grant references one policy while execution uses another.
 Previously authorized request is resubmitted.
 
 **Control:** nonce/replay identifier is consumed atomically on ALLOW.
+
+### Extension smuggling
+Caller places authority-relevant values in undeclared or malformed implementation context, or attempts to use extension material to override Core actor/action/target/policy semantics.
+
+**Control:** keep Core request fields closed; accept extension material only through the declared extension container; require implementation declaration and validation; bind accepted extension material into request evidence; Core denial always dominates.
+
+### Superseded authority reuse
+A caller attempts to execute using authority that has been explicitly superseded but remains historically inspectable.
+
+**Control:** only `active` grants are executable. `superseded` and `revoked` are historical/non-executable states.
 
 ### Receipt ambiguity
 Post-hoc evidence cannot identify what was authorized.

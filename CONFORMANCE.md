@@ -1,4 +1,4 @@
-# MCP2 Candidate v0.7.0 — Conformance
+# MCP2 Candidate v0.8.0 — Conformance
 
 ## Conformance claim
 
@@ -24,9 +24,22 @@ An `MCP2-CORE` implementation MUST demonstrate deterministic handling of at leas
 - unauthorized target → DENY;
 - policy-digest mismatch → DENY;
 - invalid ancestor/delegation chain → DENY;
+- parent delegation disabled → DENY;
+- child principal differs from parent → DENY;
+- child policy digest differs from parent → DENY;
+- superseded referenced grant or ancestor → DENY;
+- valid multi-hop delegation chain → ALLOW;
+- invalid delegation invariant two or more hops up → DENY;
+- ancestry cycle or declared traversal-resource exhaustion → DENY;
+- verifier-selected protocol version cannot be overridden by request input;
+- verifier time, not caller `requested_at`, controls validity;
+- malformed or undeclared required extension context → DENY/fail closed;
+- extension context cannot override a Core actor/action/target/policy denial;
 - replay → DENY;
 - malformed request → DENY;
 - protected execution not reached after DENY;
+- duplicate JSON object members rejected at parser ingress;
+- RFC 8785/JCS request fingerprint golden vectors;
 - receipt integrity;
 - historical decision reconstruction.
 
@@ -64,12 +77,12 @@ A conformance test MUST fail when a required input cannot be validated. Missing 
 
 ## Evidence corpus
 
-Runs Five through Twenty-Five are the closed executed proof corpus underlying Candidate v0.7.0.
+Runs Five through Twenty-Five remain the closed executed proof corpus underlying Candidate v0.7.0 and the historical baseline for Candidate v0.8.0.
 
-The proof records are historical evidence. They MUST NOT be edited to retrofit later protocol language. Protocol evolution belongs in versioned specification changes and new conformance vectors.
+Those proof records MUST NOT be edited to retrofit v0.8 language. Candidate v0.8 semantics require new versioned tests/vectors and new qualification evidence.
 
 ## Candidate status
 
-Candidate v0.7.0 is a protocol candidate, not a claim that every implementation or integration is production-certified.
+Candidate v0.8.0 is a frozen protocol Candidate. Candidate status does not claim that every implementation or integration is production-certified.
 
-A candidate implementation SHOULD report exactly which profiles and vectors it has passed rather than using an unqualified "MCP2 compliant" label.
+An implementation SHOULD report exactly which protocol version, profiles, extensions, and vectors it has passed rather than using an unqualified "MCP2 compliant" label.

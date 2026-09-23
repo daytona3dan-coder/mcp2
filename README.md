@@ -1,13 +1,13 @@
-# MCP2 — Machine Authority Protocol
+# MCP2 — Machine Authority & Evidence Profile
 
-**Status:** Candidate v0.7.0  
-**Purpose:** Define and verify bounded, revocable, receipted machine authority.
+**Status:** Candidate v0.8.0 development on this branch; Candidate v0.7.0 remains the last frozen release on main  
+**Purpose:** Define and verify bounded, revocable, receipted machine authority while remaining transport- and MCP-stack-independent.
 
 MCP2 answers one question:
 
 > Does this machine possess valid, bounded, unrevoked authority to perform this exact action against this exact target now—and can that decision later be proven?
 
-MCP2 is **not** MCP v2, an MCP replacement, an identity provider, or an agent orchestrator.
+MCP2 is **not** MCP v2, an MCP replacement, an identity provider, or an agent orchestrator. It is an authority/evidence profile with normative protocol semantics that can be carried over MCP or other execution substrates.
 
 ## Boundary
 
@@ -23,14 +23,14 @@ MCP2 is **not** MCP v2, an MCP replacement, an identity provider, or an agent or
 
 `REVOKE` may invalidate authority before execution.
 
-## Candidate profiles
+## Profiles
 
 - `MCP2-CORE` — canonical grant resolution, verification, delegation, revocation, replay protection, execution fencing, receipts, and reconstruction.
 - Optional evidence profiles are defined in `PROFILES.md` and cover witness quorum, freshness, root epochs, external time, threshold timestamp authorities, and provider epochs.
 
 An optional profile must not weaken an `MCP2-CORE` denial.
 
-## Candidate invariants
+## Core invariants
 
 1. Caller-supplied grant properties are never authoritative.
 2. Verification resolves the canonical grant by `grant_id`.
@@ -45,9 +45,11 @@ An optional profile must not weaken an `MCP2-CORE` denial.
 
 - `CHARTER.md` — category and non-goals
 - `THREAT_MODEL.md` — trust boundaries and attacker model
-- `SPECIFICATION.md` — Candidate v0.7.0 normative semantics
+- `SPECIFICATION.md` — Candidate v0.8.0 normative semantics on this branch
 - `PROFILES.md` — conformance profiles
 - `CONFORMANCE.md` — conformance requirements
+- `KNOWN-LIMITATIONS-V0.7.md` — published v0.7 historical limitations without rewriting closed evidence
+- `UPSTREAM-MCP-ADOPTION.md` — rule for adopting stable MCP primitives without duplicating or widening authority
 - `protocol-manifest.json` — machine-readable candidate version and conformance binding
 - `schemas/` — JSON Schemas for canonical records
 - `algorithms/` — deterministic verification procedures

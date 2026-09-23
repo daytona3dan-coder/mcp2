@@ -1,6 +1,6 @@
-# MCP2 Candidate v0.7.0 — Conformance Profiles
+# MCP2 Candidate v0.8.0 — Conformance Profiles
 
-MCP2 uses profiles so the base machine-authority protocol remains implementable without requiring every optional evidence mechanism.
+MCP2 uses profiles so the base machine-authority protocol remains implementable without requiring every optional evidence mechanism. Candidate v0.8 carries forward the v0.7 profile set unchanged while Core delegation and request-extension semantics are reconciled.
 
 ## MCP2-CORE
 
@@ -72,7 +72,7 @@ Where replacement-provider qualification is required, external qualification evi
 A product or implementation claiming MCP2 conformance MUST publish a declaration comparable to:
 
 ```text
-MCP2 version: 0.7.0-candidate
+MCP2 version: 0.8.0-candidate
 Profiles:
 - MCP2-CORE
 - MCP2-WITNESS

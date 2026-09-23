@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MemoryAuthorityStore, verify } from './verifier.js';
+import { parseJsonRejectDuplicateKeys } from './parse-json.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const vectorsRoot = path.resolve(here, '../../test-vectors');
@@ -16,9 +17,25 @@ function walk(dir) {
 
 let failed = 0;
 for (const file of walk(vectorsRoot).filter(f => f.endsWith('.json'))) {
-  const v = JSON.parse(fs.readFileSync(file,'utf8'));
+  const v = parseJsonRejectDuplicateKeys(fs.readFileSync(file,'utf8'));
   const s = new MemoryAuthorityStore(v.grants ?? [], v.preconsumed_nonces ?? []);
-  const d = verify(v.request, s, fixedNow);
+  const extensionValidators = Object.fromEntries(
+    Object.entries(v.extension_contracts ?? {}).map(([id, contract]) => [
+      id,
+      (body) => contract?.type === 'object'
+        ? !!body && typeof body === 'object' && !Array.isArray(body)
+        : false,
+    ]),
+  );
+  const d = verify(v.request, s, fixedNow, {
+    declaredExtensions: v.declared_extensions ?? [],
+    extensionValidators,
+    protocolVersion: v.protocol_version ?? (
+      file.includes(`${path.sep}v0.8${path.sep}`)
+        ? (() => { throw new Error(`V08_VECTOR_PROTOCOL_VERSION_REQUIRED: ${file}`); })()
+        : '0.7.0-candidate'
+    ),
+  });
   const reasonsOk = JSON.stringify(d.reasons) === JSON.stringify([...(v.expected.reasons ?? [])].sort());
   const ok = d.decision === v.expected.decision && reasonsOk;
   console.log(`${ok ? 'PASS' : 'FAIL'} ${path.relative(vectorsRoot,file)} => ${d.decision} ${d.reasons.join(',')}`);

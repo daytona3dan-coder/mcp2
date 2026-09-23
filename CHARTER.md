@@ -1,10 +1,10 @@
-# MCP2 Charter — Candidate v0.6.0
+# MCP2 Charter — Candidate v0.8.0
 
 ## Category
 
-**MCP2 — Machine Authority Protocol**
+**MCP2 — Machine Authority & Evidence Profile**
 
-MCP2 standardizes authority semantics for machine execution.
+MCP2 standardizes bounded machine-authority and evidence semantics for consequential execution. Its normative records and verifier behavior form a transport-independent protocol profile; MCP remains the preferred interoperability substrate where applicable.
 
 ## Normative question
 
@@ -30,7 +30,9 @@ These systems may provide inputs to MCP2 but do not substitute for authority ver
 
 ## Product relationship
 
-MCPaios is an operational system that may implement MCP2. MCP2 must remain independently inspectable and implementable.
+MCPaios is the operational product implementation developed alongside MCP2. MCP2 must remain independently inspectable and implementable, and MCPaios MUST NOT become MCP2's truth authority merely by implementation assertion.
+
+PayMAXAIOS or another financial system may be a prerequisite for a paid protected action, but pricing, balances, holds, settlement, and financial ledgers remain outside MCP2's authority semantics.
 
 ## Security posture
 

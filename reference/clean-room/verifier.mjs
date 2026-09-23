@@ -1,16 +1,35 @@
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 
+function assertUnicodeScalarString(value) {
+  for (let i = 0; i < value.length; i++) {
+    const code = value.charCodeAt(i);
+    if (code >= 0xd800 && code <= 0xdbff) {
+      const next = value.charCodeAt(i + 1);
+      if (!(next >= 0xdc00 && next <= 0xdfff)) throw new TypeError('invalid unicode scalar data');
+      i += 1;
+    } else if (code >= 0xdc00 && code <= 0xdfff) {
+      throw new TypeError('invalid unicode scalar data');
+    }
+  }
+}
+
 export function canonical(value) {
   if (value === null) return 'null';
   if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`;
   switch (typeof value) {
-    case 'string': return JSON.stringify(value);
+    case 'string':
+      assertUnicodeScalarString(value);
+      return JSON.stringify(value);
     case 'boolean': return value ? 'true' : 'false';
     case 'number':
       if (!Number.isFinite(value)) throw new TypeError('non-finite number');
       return Object.is(value, -0) ? '0' : JSON.stringify(value);
     case 'object': {
-      const keys = Object.keys(value).sort();
+      const prototype = Object.getPrototypeOf(value);
+      if (prototype !== Object.prototype && prototype !== null) throw new TypeError('non-plain object');
+      const keys = Object.keys(value);
+      for (const key of keys) assertUnicodeScalarString(key);
+      keys.sort();
       return `{${keys.map(k => `${JSON.stringify(k)}:${canonical(value[k])}`).join(',')}}`;
     }
     default: throw new TypeError(`unsupported canonical type: ${typeof value}`);
@@ -40,6 +59,24 @@ function subset(child, parent) {
   return Array.isArray(child) && Array.isArray(parent) && child.every(v => parent.includes(v));
 }
 
+function validExtensions(request, declaredExtensions = []) {
+  if (!request || !Object.prototype.hasOwnProperty.call(request, 'extensions')) return true;
+  const value = request.extensions;
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const declared = new Set(declaredExtensions);
+  return Object.keys(value).every((key) =>
+    /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/.test(key) && declared.has(key)
+  );
+}
+
+function validV08RequestTopLevel(request) {
+  if (!request || typeof request !== 'object' || Array.isArray(request)) return false;
+  const allowed = new Set([
+    'request_id','grant_id','actor','action','target','policy_digest','nonce','requested_at','extensions'
+  ]);
+  return Object.keys(request).every((key) => allowed.has(key));
+}
+
 function authorityDeny(request, grant, reasons) {
   return {
     decision: 'DENY',
@@ -50,11 +87,27 @@ function authorityDeny(request, grant, reasons) {
 }
 
 export function evaluateAuthority(input = {}) {
-  const { now, request, grants = [], used_nonces = [] } = input;
+  const {
+    now,
+    request,
+    grants = [],
+    used_nonces = [],
+    declared_extensions = [],
+    protocol_version,
+  } = input;
+  if (!['0.7.0-candidate','0.8.0-candidate'].includes(protocol_version)) {
+    throw new Error('MCP2_PROTOCOL_VERSION_REQUIRED_OR_UNSUPPORTED');
+  }
+  const v08 = protocol_version === '0.8.0-candidate';
   const nowMs = parseTime(now);
   if (nowMs === null) return authorityDeny(request, null, ['MALFORMED_VERIFICATION_TIME']);
   const required = ['request_id','grant_id','actor','action','target','policy_digest','nonce','requested_at'];
-  if (!request || required.some(k => typeof request[k] !== 'string' || request[k].length === 0)) {
+  if (!request
+      || required.some(k => typeof request[k] !== 'string' || request[k].length === 0)
+      || (v08 && (
+        !validV08RequestTopLevel(request)
+        || !validExtensions(request, declared_extensions)
+      ))) {
     return authorityDeny(request, null, ['MALFORMED_REQUEST']);
   }
   const byId = new Map(grants.map(g => [g.grant_id, g]));
@@ -88,6 +141,9 @@ export function evaluateAuthority(input = {}) {
     const cFrom = parseTime(child.valid_from);
     const cUntil = parseTime(child.valid_until);
     if (parent.status !== 'active' || pFrom === null || pUntil === null || nowMs < pFrom || nowMs >= pUntil) reasons.push('ANCESTOR_INVALID');
+    if (v08 && parent.delegation?.allowed !== true) reasons.push('ANCESTOR_INVALID');
+    if (v08 && child.principal !== parent.principal) reasons.push('ANCESTOR_INVALID');
+    if (v08 && child.policy_digest !== parent.policy_digest) reasons.push('ANCESTOR_INVALID');
     if (!subset(child.actions, parent.actions) || !subset(child.targets, parent.targets)) reasons.push('ANCESTOR_INVALID');
     if (cFrom === null || cUntil === null || pFrom === null || pUntil === null || cFrom < pFrom || cUntil > pUntil) reasons.push('ANCESTOR_INVALID');
     child = parent;
