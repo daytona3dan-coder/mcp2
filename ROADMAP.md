@@ -8,7 +8,7 @@ Those proof records remain historical evidence and are not rewritten by later pr
 
 ## Current Gate A — v0.8 protocol reconciliation
 
-Status: **IN DEVELOPMENT**
+Status: **COMPLETE — CANDIDATE v0.8.0 FROZEN**
 
 Reconcile the public normative specification, schemas, algorithms, reference verifier, clean-room verifier, and conformance vectors for:
 
@@ -19,7 +19,7 @@ Reconcile the public normative specification, schemas, algorithms, reference ver
 - declared implementation request extensions;
 - continued separation between Core replay nonce and implementation-specific attempt identity.
 
-Exit: exact-head review, green public draft conformance, then a separately frozen v0.8 Candidate.
+Exit achieved: exact-head review, green public Candidate qualification, and Candidate v0.8.0 freeze.
 
 ## Current Gate B — MCPaios product alignment
 
