@@ -49,6 +49,7 @@ An optional profile must not weaken an `MCP2-CORE` denial.
 - `PROFILES.md` — conformance profiles
 - `CONFORMANCE.md` — conformance requirements
 - `KNOWN-LIMITATIONS-V0.7.md` — published v0.7 historical limitations without rewriting closed evidence
+- `UPSTREAM-MCP-ADOPTION.md` — rule for adopting stable MCP primitives without duplicating or widening authority
 - `protocol-manifest.json` — machine-readable candidate version and conformance binding
 - `schemas/` — JSON Schemas for canonical records
 - `algorithms/` — deterministic verification procedures
