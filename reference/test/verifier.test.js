@@ -6,6 +6,9 @@ import { parseJsonRejectDuplicateKeys } from '../src/strict-json.js';
 const POLICY = 'a'.repeat(64);
 const NOW = new Date('2026-09-02T13:30:00Z');
 const V07 = Object.freeze({ protocolVersion: '0.7.0-candidate' });
+const EXAMPLE_VALIDATORS = Object.freeze({
+  'mcpaios.example.v1': (value) => !!value && typeof value === 'object' && !Array.isArray(value),
+});
 function verify07(req, store, now = NOW) { return verify(req, store, now, V07); }
 
 function grant(overrides = {}) {
@@ -188,6 +191,7 @@ test('declared extension context is bound but cannot override actor mismatch', (
   }), s, NOW, {
     protocolVersion:'0.8.0-draft',
     declaredExtensions:['mcpaios.example.v1'],
+    extensionValidators:EXAMPLE_VALIDATORS,
   });
   assert.equal(d.decision, 'DENY');
   assert.ok(d.reasons.includes('ACTOR_MISMATCH'));
@@ -201,6 +205,7 @@ test('undeclared extension is malformed and cannot reach ALLOW', () => {
   }), s, NOW, {
     protocolVersion:'0.8.0-draft',
     declaredExtensions:['mcpaios.example.v1'],
+    extensionValidators:EXAMPLE_VALIDATORS,
   });
   assert.equal(d.decision, 'DENY');
   assert.ok(d.reasons.includes('MALFORMED_REQUEST'));
@@ -216,6 +221,7 @@ test('declared extension cannot override policy mismatch', () => {
   }), s, NOW, {
     protocolVersion:'0.8.0-draft',
     declaredExtensions:['mcpaios.example.v1'],
+    extensionValidators:EXAMPLE_VALIDATORS,
   });
   assert.equal(d.decision, 'DENY');
   assert.ok(d.reasons.includes('POLICY_DIGEST_MISMATCH'));
@@ -239,6 +245,7 @@ test('v0.8 rejects malformed extension container shape', () => {
   }, s, NOW, {
     protocolVersion:'0.8.0-draft',
     declaredExtensions:['mcpaios.example.v1'],
+    extensionValidators:EXAMPLE_VALIDATORS,
   });
   assert.equal(d.decision, 'DENY');
   assert.ok(d.reasons.includes('MALFORMED_REQUEST'));
@@ -274,4 +281,44 @@ test('v0.8 validity uses verifier time, not caller requested_at', () => {
     { protocolVersion:'0.8.0-draft' },
   );
   assert.equal(d.decision, 'ALLOW');
+});
+
+
+test('v0.8 rejects malformed requested_at evidence', () => {
+  const s = new MemoryAuthorityStore([grant()]);
+  const d = verify(request({ nonce:'bad-time', requested_at:'not-a-time' }), s, NOW, { protocolVersion:'0.8.0-draft' });
+  assert.equal(d.decision, 'DENY');
+  assert.ok(d.reasons.includes('MALFORMED_REQUEST'));
+});
+
+test('v0.8 rejects uppercase policy digest rather than normalizing it', () => {
+  const s = new MemoryAuthorityStore([grant()]);
+  const d = verify(request({ nonce:'upper-policy', policy_digest:POLICY.toUpperCase() }), s, NOW, { protocolVersion:'0.8.0-draft' });
+  assert.equal(d.decision, 'DENY');
+  assert.ok(d.reasons.includes('MALFORMED_REQUEST'));
+});
+
+test('v0.8 declared extension requires a bound validator', () => {
+  const s = new MemoryAuthorityStore([grant()]);
+  const d = verify(request({
+    nonce:'missing-validator',
+    extensions:{'mcpaios.example.v1':{note:'context'}}
+  }), s, NOW, { protocolVersion:'0.8.0-draft', declaredExtensions:['mcpaios.example.v1'] });
+  assert.equal(d.decision, 'DENY');
+  assert.ok(d.reasons.includes('MALFORMED_REQUEST'));
+});
+
+test('v0.8 noncanonicalizable request does not consume nonce', () => {
+  const s = new MemoryAuthorityStore([grant()]);
+  const bad = request({ nonce:'unicode-nonce', extensions:{'mcpaios.example.v1':{note:'\ud800'}} });
+  const d = verify(bad, s, NOW, {
+    protocolVersion:'0.8.0-draft',
+    declaredExtensions:['mcpaios.example.v1'],
+    extensionValidators:EXAMPLE_VALIDATORS,
+  });
+  assert.equal(d.decision, 'DENY');
+  assert.ok(d.reasons.includes('MALFORMED_REQUEST'));
+  assert.equal(s.usedNonces.has('unicode-nonce'), false);
+  assert.equal(d.request_fingerprint, null);
+  assert.equal(d.request_fingerprint_alg, 'NONCANONICALIZABLE');
 });
