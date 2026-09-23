@@ -20,13 +20,13 @@ Therefore a v0.7 conformance claim must be read as conformance to the frozen v0.
 
 Candidate v0.7 stated that implementations may add declared extension fields while the published Core verification-request JSON Schema was closed with `additionalProperties: false`. That left the carriage/conformance rule for implementation-defined request context underspecified.
 
-Draft v0.8 addresses this by defining an optional closed-top-level `extensions` container plus explicit declaration and monotonicity rules.
+Candidate v0.8 addresses this by defining an optional closed-top-level `extensions` container plus explicit declaration and monotonicity rules.
 
 ## Fingerprint portability
 
 Candidate v0.7 required integrity-bound fingerprints but did not define one normative cross-language JSON canonicalization algorithm for all request fingerprints.
 
-Draft v0.8 adds a portable canonical request encoding requirement. Existing v0.7 fingerprints remain valid historical evidence under the implementation that produced them and are not regenerated.
+Candidate v0.8 adds a portable canonical request encoding requirement. Existing v0.7 fingerprints remain valid historical evidence under the implementation that produced them and are not regenerated.
 
 ## Historical proof preservation
 
