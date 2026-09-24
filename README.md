@@ -1,6 +1,6 @@
 # MCP2 — Machine Authority & Evidence Profile
 
-**Status:** Candidate v0.8.0 development on this branch; Candidate v0.7.0 remains the last frozen release on main  
+**Status:** Candidate v0.8.0 (`0.8.0-candidate`) — FROZEN / QUALIFIED, September 23, 2026  
 **Purpose:** Define and verify bounded, revocable, receipted machine authority while remaining transport- and MCP-stack-independent.
 
 MCP2 answers one question:
@@ -45,7 +45,7 @@ An optional profile must not weaken an `MCP2-CORE` denial.
 
 - `CHARTER.md` — category and non-goals
 - `THREAT_MODEL.md` — trust boundaries and attacker model
-- `SPECIFICATION.md` — Candidate v0.8.0 normative semantics on this branch
+- `SPECIFICATION.md` — Candidate v0.8.0 normative semantics
 - `PROFILES.md` — conformance profiles
 - `CONFORMANCE.md` — conformance requirements
 - `KNOWN-LIMITATIONS-V0.7.md` — published v0.7 historical limitations without rewriting closed evidence
@@ -61,7 +61,25 @@ An optional profile must not weaken an `MCP2-CORE` denial.
 
 Requires Node.js 20+.
 
-The Candidate v0.7.0 protocol freeze and clean-room conformance suite are executable from this repository. The machine-readable manifest binds the current candidate to the closed Runs Five through Twenty-Five proof corpus and the independent conformance vector digest.
+Candidate v0.8.0 is frozen at implementation commit `dc890456594e7d8f8eda92c4fa590800a8636942`. See the [freeze record](candidate/V0_8_CANDIDATE_FREEZE.md) for qualification and scope. Candidate v0.7.0 and Runs Five through Twenty-Five remain preserved predecessor evidence.
+
+Run the current freeze and clean-room checks from the repository root:
+
+```sh
+node --test candidate/protocol-freeze.test.mjs
+node --test reference/clean-room/test.mjs
+node reference/clean-room/v08-run-vectors.mjs
+```
+
+## Portable reconstruction
+
+The [portable reconstruction example](examples/portable-reconstruction-v1/) supplies the original request, complete grant chain for the example, policy material, decision receipt, and historical verifier time. It reconstructs one selected decision without access to MCPaios, a database, network services, or operational secrets.
+
+```sh
+node examples/portable-reconstruction-v1/verify.mjs
+```
+
+This does not make a receipt alone self-contained or imply that every operational receipt is automatically exported in this shape.
 
 ## License and implementation
 
