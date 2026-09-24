@@ -34,3 +34,5 @@ jobs:
         run: node reference/clean-room/evidence-bindings.mjs
       - name: Verify portable reconstruction example
         run: node examples/portable-reconstruction-v1/verify.mjs
+      - name: Reject malformed portable example timestamps
+        run: node --test examples/portable-reconstruction-v1/verify.test.mjs
