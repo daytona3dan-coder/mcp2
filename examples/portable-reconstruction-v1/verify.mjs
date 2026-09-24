@@ -16,8 +16,19 @@ if(sha(request)!==receipt.request_fingerprint)fail('request fingerprint mismatch
 if(sha(grant)!==receipt.grant_fingerprint)fail('grant fingerprint mismatch');
 if(receipt.policy_digest!==request.policy_digest||grant.policy_digest!==request.policy_digest)fail('policy binding mismatch');
 if(receipt.request_id!==request.request_id||receipt.grant_id!==request.grant_id)fail('receipt identity mismatch');
-const t=Date.parse(receipt.verified_at);
-if(grant.status!=='active'||t<Date.parse(grant.valid_from)||t>=Date.parse(grant.valid_until))fail('grant not valid at decision');
+// Date.parse can return NaN; comparisons with NaN are both false.
+// Validate each operand before evaluating the half-open grant interval.
+function timestamp(value, field) {
+  const format = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
+  if (typeof value !== 'string' || !format.test(value)) fail(`invalid timestamp: ${field}`);
+  const parsed = Date.parse(value);
+  if (!Number.isFinite(parsed)) fail(`invalid timestamp: ${field}`);
+  return parsed;
+}
+const t=timestamp(receipt.verified_at,'receipt.verified_at');
+const validFrom=timestamp(grant.valid_from,'grant.valid_from');
+const validUntil=timestamp(grant.valid_until,'grant.valid_until');
+if(grant.status!=='active'||t<validFrom||t>=validUntil)fail('grant not valid at decision');
 if(request.actor!==grant.actor||!grant.actions.includes(request.action)||!grant.targets.includes(request.target))fail('authority mismatch');
 if(grant.parent_grant_id!==null)fail('example expects complete single-grant chain');
 if(receipt.decision!=='ALLOW'||receipt.reasons.length!==0)fail('decision mismatch');
