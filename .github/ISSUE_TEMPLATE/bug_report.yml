@@ -1,0 +1,61 @@
+name: Bug report
+description: Report a reproducible, non-sensitive MCP2 defect.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For suspected vulnerabilities, follow [SECURITY.md](https://github.com/daytona3dan-coder/mcp2/blob/main/SECURITY.md) and report privately. Do not include credentials or private records here.
+  - type: input
+    id: revision
+    attributes:
+      label: Version and commit
+      description: Include the exact commit SHA and protocol version/profile.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      options:
+        - Specification or schema
+        - Reference verifier
+        - Clean-room verifier
+        - Portable example
+        - Documentation or tooling
+        - Unsure
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Node.js version and operating system, or not applicable.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Exact commands and sanitized inputs; identify any changes to the original fixture.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+      description: Cite the relevant specification section or documented behavior if known.
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed result and evidence
+      description: Include sanitized output and distinguish a local example result from a production finding.
+    validations:
+      required: true
+  - type: textarea
+    id: assistance
+    attributes:
+      label: Additional context and AI assistance
+      description: Optional related issues, proposed correction, and any AI-assisted checks and how you verified them.
