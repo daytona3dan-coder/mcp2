@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Private security reporting
+    url: https://github.com/daytona3dan-coder/mcp2/blob/main/SECURITY.md
+    about: Read how to report suspected vulnerabilities privately by email.
+  - name: Questions and discussion
+    url: https://github.com/daytona3dan-coder/mcp2/discussions
+    about: Ask questions or discuss MCP2 before proposing a change.
